@@ -5,3 +5,6 @@ season - FIRST ENERGIZE presented by Qualcomm.
  
 -- Contributors --
 
+Natalee Zatkoff 
+
+Jacob Clark

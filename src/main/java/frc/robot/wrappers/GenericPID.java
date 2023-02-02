@@ -11,7 +11,7 @@ public class GenericPID {
     private double P; // Proportional gain
     private double I; // Integral gain
     private double D; // Derivative gain
-    private double setpoint;
+    private double setpoint = 0;
     private CANSparkMax.ControlType controlType;
     private double min = Integer.MIN_VALUE;
     private double max = Integer.MAX_VALUE;
@@ -67,12 +67,14 @@ public class GenericPID {
         this.D = D; controller.setD(D); 
     }
     public void setControlType(CANSparkMax.ControlType controlType) { this.controlType = controlType; }
+    // Set the min and max possible setpoint
     public void setMin(double min) { this.min = min; setSetpoint(this.setpoint); }
     public void setMax(double max) { this.max = max; setSetpoint(this.setpoint); }
     public void setInputRange(double min, double max) { this.min = min; this.max = max; setSetpoint(this.setpoint); }
+    // Set the min and max speed [-1,1]
     public void setOutputRange(double min, double max) { controller.setOutputRange(min, max); }
     
-    // Forces the setpoint in bounds when it is set
+    // Sets the setpoint, and forces it within user-set bounds [min,max]
     public void setSetpoint(double set) {
         this.setpoint = set < min ? min : 
                       ( set > max ? max : set );
@@ -91,10 +93,7 @@ public class GenericPID {
     }
 
     // Starts the PID controller
-    public void activate() {
-        updatePID();
-        controller.setReference(this.setpoint, this.controlType);
-    }
+    public void activate() { activate(this.setpoint); }
     public void activate(double setpoint) {
         updatePID();
         setSetpoint(setpoint);

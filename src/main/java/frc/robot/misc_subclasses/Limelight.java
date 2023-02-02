@@ -2,7 +2,7 @@
 package frc.robot.misc_subclasses;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
-import static frc.robot.Constants.*;
+import static frc.robot.lists.Constants.*;
 
 public class Limelight {
     // Declare variables

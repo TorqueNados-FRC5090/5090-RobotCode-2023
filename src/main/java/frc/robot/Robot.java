@@ -1,87 +1,74 @@
 package frc.robot;
 
-// Controller Imports
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.Joystick;
-
-// Actuation imports (Motors, Compressors, etc.)
-
-// Camera imports
-import edu.wpi.first.cameraserver.CameraServer;
-
-// Subsystem imports
-import frc.robot.subsystems.Drivetrain;
-
-// Misc imports
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.misc_subclasses.Dashboard;
-import frc.robot.misc_subclasses.Limelight;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-
-
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the TimedRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the build.gradle file in the
- * project.
- */
 public class Robot extends TimedRobot {
-  // Controller ojects
-  private Joystick joystick; 
-  private XboxController xbox;
+  private Command autonCommand;
 
-  // Subsystem objects
-  private Drivetrain drivetrain;
-  private Dashboard dashboard;
-  private Limelight limelight;
-  
+  private RobotContainer robotContainer;
+
   // This function is run when the robot is first started up and should be used
   // for any initialization code.
   @Override
   public void robotInit() {
-    // Initialize variables
-    joystick = new Joystick(0);
-    xbox  = new XboxController(1);
+    if (RobotBase.isReal())
+      DataLogManager.start();
 
-    CameraServer.startAutomaticCapture();
-    limelight = new Limelight();
-
-    dashboard = new Dashboard();
+    // Instantiate our RobotContainer. This will perform all our button bindings,
+    // and put our autonomous chooser on the dashboard.
+    robotContainer = new RobotContainer();
   }
 
   // This function is called once at the start of auton
   @Override
   public void autonomousInit() {
+    autonCommand = robotContainer.getAutonomousCommand();
 
+    if (autonCommand != null) {
+      autonCommand.schedule();
+    }
   }
 
   // This function is called every 20ms during auton
   @Override
-  public void autonomousPeriodic() { 
-    
+  public void autonomousPeriodic() {
   }
-  
+
   // This function is called once at the start of teleop
   @Override
   public void teleopInit() {
-    
+    // This makes sure that the autonomous command stops when teleop starts
+    if (autonCommand != null) {
+      autonCommand.cancel();
+    }
+
+    // new SetSwerveOdometry(m_robotContainer.m_robotDrive,
+    // m_robotContainer.m_fieldSim,new Pose2d(6.13, 5.23,
+    // Rotation2d.fromDegrees(-41.5))).schedule();
   }
 
   // This function is called every 20ms during teleop
   @Override
   public void teleopPeriodic() {
-   
   }
 
-  // This function is called every 20ms while the robot is enabled
+  // This function is called every 20ms no matter what
   @Override
   public void robotPeriodic() {
-
-    // Update subclass internal values
-    limelight.updateLimelightTracking();
-
-    // Update dashboard
-    dashboard.printLimelightData(limelight);
+    // Runs the Command Scheduler.
+    CommandScheduler.getInstance().run();
+    robotContainer.m_fieldSim.periodic();
+    robotContainer.periodic();    
   }
+
+  @Override
+  public void simulationPeriodic() {
+    robotContainer.m_fieldSim.periodic();
+    robotContainer.simulationPeriodic();
+  }
+
 }

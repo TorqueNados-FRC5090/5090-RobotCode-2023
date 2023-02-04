@@ -1,11 +1,13 @@
 package frc.robot;
 
+// Imports
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.CANCoderFaults;
 import com.ctre.phoenix.sensors.CANCoderStickyFaults;
 import com.ctre.phoenix.sensors.MagnetFieldStrength;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 
+// Absolute encoder class
 public class CTRECanCoder extends WPI_CANCoder {
     CANCoderFaults faults = new CANCoderFaults();
     CANCoderStickyFaults stickyFaults = new CANCoderStickyFaults();
@@ -21,9 +23,7 @@ public class CTRECanCoder extends WPI_CANCoder {
 
         this.configAllSettings(m_canCoderConfiguration);
     }
-
-    // Getters
-
+    
     public String[] getStickyFaults() {
         String[] temp = new String[4];
         temp[0] = stickyFaults.HardwareFault ? "True " : "False";
@@ -32,12 +32,13 @@ public class CTRECanCoder extends WPI_CANCoder {
         temp[3] = stickyFaults.APIError ? "True " : "False";
         return temp;
     }
-
+    
     public String[] getFaults() {
         String[] temp = new String[4];
         return temp;
     }
-
+    
+    // Getters
     public boolean getFaulted() { return faults.hasAnyFault() || stickyFaults.hasAnyFault(); }
     public double getMyPosition() { return this.getPosition(); }
     public String getPosUnits() { return this.getLastUnitString(); }

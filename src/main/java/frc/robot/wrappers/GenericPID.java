@@ -4,6 +4,7 @@ package frc.robot.wrappers;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 
+// Wraps SparkMaxPIDController for ease of use
 public class GenericPID {
     // Declare variables
     private SparkMaxPIDController controller;

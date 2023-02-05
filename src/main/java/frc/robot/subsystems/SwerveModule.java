@@ -1,48 +1,53 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
+// Motor imports
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.REVPhysicsSim;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.RelativeEncoder;
+import frc.robot.CTRECanCoder;
+import com.revrobotics.REVPhysicsSim;
 
+// Math and swerve imports
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.CTRECanCoder;
+import frc.robot.utils.AngleUtils;
+
+// Import constants
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.ModulePosition;
 import frc.robot.Constants.ModuleConstants;
-import frc.robot.Pref;
-import frc.robot.utils.AngleUtils;
-import frc.robot.utils.ShuffleboardContent;
+import edu.wpi.first.math.util.Units;
 
+// Other imports
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.utils.ShuffleboardContent;
+import frc.robot.Pref;
+
+// This subsystem represents a single swerve module.
+// A swerve module physically consists of a motor for turning,
+// a motor for driving, and an absolute encoder that tracks rotation.
 public class SwerveModule extends SubsystemBase {
+    // Declare the motors, encoders, and controllers
     public final CANSparkMax driveMotor;
     public final CANSparkMax turningMotor;
-
     public final RelativeEncoder driveEncoder;
     private final RelativeEncoder turningEncoder;
-
+    public final CTRECanCoder turnCANcoder;
     private final SparkMaxPIDController driveVelController;
     private SparkMaxPIDController turnSMController = null;
     private PIDController turnController = null;
-    public final CTRECanCoder turnCANcoder;
+
     public ModulePosition modulePosition;// enum with test module names;
     SwerveModuleState state;
     public int moduleNumber;
@@ -83,24 +88,25 @@ public class SwerveModule extends SubsystemBase {
     /**
      * Constructs a SwerveModule.
      *
-     * @param driveMotorChannel       The channel of the drive motor.
-     * @param turningMotorChannel     The channel of the turning motor.
-     * @param driveEncoderChannels    The channels of the drive encoder.
-     * @param turningCANCoderChannels The channels of the turning encoder.
-     * @param driveEncoderReversed    Whether the drive encoder is reversed.
-     * @param turningEncoderReversed  Whether the turning encoder is reversed.
-     * @param turningEncoderOffset
+     * @param position The position of the module being constructed. (see enum)
+     * @param driveMotorID The ID of the driving motor.
+     * @param turnMotorID The ID of the turning motor.
+     * @param absoluteEncoderID The ID of the absolute encoder.
+     * @param driveMotorReversed Whether the driving motor is inverted.
+     * @param turningMotorReversed Whether the turning motor is inverted.
+     * @param turningEncoderOffset The encoder's reading when pointing forward.
      */
     public SwerveModule(
-        ModulePosition modulePosition,
-        int driveMotorCanChannel,
-        int turningMotorCanChannel,
-        int cancoderCanChannel,
+        ModulePosition position,
+        int driveMotorID,
+        int turnMotorID,
+        int absoluteEncoderID,
         boolean driveMotorReversed,
         boolean turningMotorReversed,
         double turningEncoderOffset) {
 
-        driveMotor = new CANSparkMax(driveMotorCanChannel, MotorType.kBrushless);
+        // Create a driving motor and initialize its settings
+        driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         driveMotor.restoreFactoryDefaults();
         driveMotor.setSmartCurrentLimit(20);
         driveMotor.enableVoltageCompensation(DriveConstants.kVoltCompensation);
@@ -110,7 +116,8 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2, 20);
         driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
-        turningMotor = new CANSparkMax(turningMotorCanChannel, MotorType.kBrushless);
+        // Create a turning motor and initialize its settings
+        turningMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         turningMotor.restoreFactoryDefaults();
         turningMotor.setSmartCurrentLimit(20);
         turningMotor.enableVoltageCompensation(DriveConstants.kVoltCompensation);
@@ -120,13 +127,16 @@ public class SwerveModule extends SubsystemBase {
         turningMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2, 50);
         turningMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
-        // absolute encoder used to establish known wheel position on start position
-        turnCANcoder = new CTRECanCoder(cancoderCanChannel);
+        // Create an absolute encoder and initialize its settings
+        // The absolute encoder is used to keep track of where an absolute 0 is.
+        // This allows us to turn the motors to the same place on every startup.
+        turnCANcoder = new CTRECanCoder(absoluteEncoderID);
         turnCANcoder.configFactoryDefault();
         turnCANcoder.configAllSettings(AngleUtils.generateCanCoderConfig());
-
         this.turningEncoderOffset = turningEncoderOffset;    
 
+        // Setup the encoder built into the driving motor
+        // This encoder is used to keep track of how much each motor has driven since startup.
         driveEncoder = driveMotor.getEncoder();
         driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveMetersPerEncRev);
         driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncRPMperMPS);
@@ -134,15 +144,17 @@ public class SwerveModule extends SubsystemBase {
         driveVelController = driveMotor.getPIDController();
 
         if (RobotBase.isReal()) {
-        driveVelController.setP(.01, VEL_SLOT);
-        driveVelController.setD(0, VEL_SLOT);
-        driveVelController.setI(0, VEL_SLOT);
-        driveVelController.setIZone(1, VEL_SLOT);
+            driveVelController.setP(.01, VEL_SLOT);
+            driveVelController.setD(0, VEL_SLOT);
+            driveVelController.setI(0, VEL_SLOT);
+            driveVelController.setIZone(1, VEL_SLOT);
         } 
         else {
-        driveVelController.setP(1, SISLOT);
+            driveVelController.setP(1, SISLOT);
         }
 
+        // Setup the encoder built into the driving motor
+        // This encoder is used to keep track of how much each motor has turned since startup.
         turningEncoder = turningMotor.getEncoder();
         turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningDegreesPerEncRev);
         turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningDegreesPerEncRev / 60);
@@ -153,15 +165,15 @@ public class SwerveModule extends SubsystemBase {
         turnController = new PIDController(ModuleConstants.kPModuleTurnController, 0, 0);
 
         if (useRRPid)
-        tunePosGains();
+            tunePosGains();
         else
-        tuneSMPosGains();
+            tuneSMPosGains();
 
-        this.modulePosition = modulePosition;
-        moduleNumber = modulePosition.ordinal(); // gets module enum index
+        this.modulePosition = position;
+        moduleNumber = position.ordinal(); // gets module enum index
 
         if (RobotBase.isSimulation())
-        REVPhysicsSim.getInstance().addSparkMax(driveMotor, DCMotor.getNEO(1));
+            REVPhysicsSim.getInstance().addSparkMax(driveMotor, DCMotor.getNEO(1));
 
         checkCAN();
 
@@ -174,7 +186,7 @@ public class SwerveModule extends SubsystemBase {
         ShuffleboardContent.initCoderBooleanShuffleboard(this);
     }
 
-    // ----------  Getters  ----------  
+    // Getters  
     public double getDriveVelocity() { return driveEncoder.getVelocity(); }
     public double getDrivePosition() { return driveEncoder.getPosition(); }
     public double getDriveCurrent() { return driveMotor.getOutputCurrent(); }
@@ -189,37 +201,33 @@ public class SwerveModule extends SubsystemBase {
     public Rotation2d getHeadingRotation2d() { return Rotation2d.fromDegrees(getHeadingDegrees()); }
     public double getHeadingDegrees() {
         if (RobotBase.isReal())
-        return turningEncoder.getPosition();
+            return turningEncoder.getPosition();
         else
-        return actualAngleDegrees;
+            return actualAngleDegrees;
     }
 
     public SwerveModuleState getState() {
         if (RobotBase.isReal())
-        return new SwerveModuleState(driveEncoder.getVelocity(), getHeadingRotation2d());
+            return new SwerveModuleState(driveEncoder.getVelocity(), getHeadingRotation2d());
         else
-        return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(Units.degreesToRadians(angle)));
+            return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(Units.degreesToRadians(angle)));
     }
 
-    // ----------  Setters  ----------  
+    // Setters  
     public void setModulePose(Pose2d pose) { this.pose = pose; }
     public void setDriveBrakeMode(boolean on) {
         if (on)
-        driveMotor.setIdleMode(IdleMode.kBrake);
+            driveMotor.setIdleMode(IdleMode.kBrake);
         else
-        driveMotor.setIdleMode(IdleMode.kCoast);
+            driveMotor.setIdleMode(IdleMode.kCoast);
     }
     public void setTurnBrakeMode(boolean on) {
         if (on)
-        turningMotor.setIdleMode(IdleMode.kBrake);
+            turningMotor.setIdleMode(IdleMode.kBrake);
         else
-        turningMotor.setIdleMode(IdleMode.kCoast);
+            turningMotor.setIdleMode(IdleMode.kCoast);
     }
 
-    
-    /** Sets the desired state for the module.
-     * @param desiredState Desired state with speed and angle.
-     */
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {
 
         state = AngleUtils.optimize(desiredState, getHeadingRotation2d());
@@ -262,30 +270,6 @@ public class SwerveModule extends SubsystemBase {
         }
     }
 
-    // ----------  Others  ----------  
-
-    @Override
-    public void periodic() {
-        if (Pref.getPref("SwerveTune") == 1 && tuneOn == 0) {
-        tuneOn = 1;
-
-        if (useRRPid)
-            tunePosGains();
-        else
-            tuneSMPosGains();
-        }
-
-        if (tuneOn == 1)
-        tuneOn = (int) Pref.getPref("SwerveTune");
-
-        if (turnCANcoder.getFaulted()) {
-        // SmartDashboard.putStringArray("CanCoderFault"
-        // + modulePosition.toString(), turnCANcoder.getFaults());
-        SmartDashboard.putStringArray("CanCoderStickyFault"
-            + modulePosition.toString(), turnCANcoder.getStickyFaults());
-        }
-    }
-
     public void tunePosGains() {
         turnController.setP(Pref.getPref("SwerveTurnPoskP"));
         turnController.setI(Pref.getPref("SwerveTurnPoskI"));
@@ -297,11 +281,6 @@ public class SwerveModule extends SubsystemBase {
         turnSMController.setI(Pref.getPref("SwerveTurnSMPoskI"), POS_SLOT);
         turnSMController.setD(Pref.getPref("SwerveTurnSMPoskD"), POS_SLOT);
         turnSMController.setIZone(Pref.getPref("SwerveTurnSMPoskIz"), POS_SLOT);
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        REVPhysicsSim.getInstance().run();
     }
 
     public static double limitMotorCmd(double motorCmdIn) { return Math.max(Math.min(motorCmdIn, 1.0), -1.0); }
@@ -324,11 +303,10 @@ public class SwerveModule extends SubsystemBase {
 
         double pidOut = turnController.calculate(turningEncoder.getPosition(), angle);
         // if robot is not moving, stop the turn motor oscillating
-        if (turnAngleError < turnDeadband
-
-            && Math.abs(state.speedMetersPerSecond) <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
-
-        pidOut = 0;
+        if (turnAngleError < turnDeadband 
+                && Math.abs(state.speedMetersPerSecond) 
+                <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
+            pidOut = 0;
 
         turningMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
     }
@@ -336,17 +314,17 @@ public class SwerveModule extends SubsystemBase {
     private void simTurnPosition(double angle) {
         
         if (angle != actualAngleDegrees && angleIncrementPer20ms == 0) {
-        angleDifference = angle - actualAngleDegrees;
-        angleIncrementPer20ms = angleDifference / 20; // 10*20ms = .2 sec move time
+            angleDifference = angle - actualAngleDegrees;
+            angleIncrementPer20ms = angleDifference / 20; // 10*20ms = .2 sec move time
         }
 
         if (angleIncrementPer20ms != 0) {
-        actualAngleDegrees += angleIncrementPer20ms;
+            actualAngleDegrees += angleIncrementPer20ms;
 
-        if ((Math.abs(angle - actualAngleDegrees)) < .1) {
-            actualAngleDegrees = angle;
-            angleIncrementPer20ms = 0;
-        }
+            if ((Math.abs(angle - actualAngleDegrees)) < .1) {
+                actualAngleDegrees = angle;
+                angleIncrementPer20ms = 0;
+            }
         }
     }
 
@@ -361,5 +339,32 @@ public class SwerveModule extends SubsystemBase {
         turnCoderConnected = turnCANcoder.getFirmwareVersion() > 0;
 
         return driveMotorConnected && turnMotorConnected && turnCoderConnected;
+    }
+
+    @Override
+    public void periodic() {
+        if (Pref.getPref("SwerveTune") == 1 && tuneOn == 0) {
+            tuneOn = 1;
+
+        if (useRRPid)
+            tunePosGains();
+        else
+            tuneSMPosGains();
+        }
+
+        if (tuneOn == 1)
+            tuneOn = (int) Pref.getPref("SwerveTune");
+
+        if (turnCANcoder.getFaulted()) {
+            // SmartDashboard.putStringArray("CanCoderFault"
+            // + modulePosition.toString(), turnCANcoder.getFaults());
+            SmartDashboard.putStringArray("CanCoderStickyFault"
+                + modulePosition.toString(), turnCANcoder.getStickyFaults());
+        }
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        REVPhysicsSim.getInstance().run();
     }
 }

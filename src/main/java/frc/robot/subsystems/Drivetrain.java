@@ -34,7 +34,8 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import com.ctre.phoenix.unmanaged.Unmanaged;
 
-// This subsystem represents the robot's drivetrain
+// This subsystem represents the robot's drivetrain.
+// In this case, a drivetrain consists of four swerve modules arranged in a square.
 public class Drivetrain extends SubsystemBase {
 
     public SwerveDriveKinematics kSwerveKinematics = DriveConstants.kSwerveKinematics;
@@ -83,6 +84,7 @@ public class Drivetrain extends SubsystemBase {
     // The gyro sensor
     private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
+    // Used for driving autonomously
     private PIDController xController = new PIDController(DriveConstants.kP_X, 0, DriveConstants.kD_X);
     private PIDController yController = new PIDController(DriveConstants.kP_Y, 0, DriveConstants.kD_Y);
     private ProfiledPIDController turnController = new ProfiledPIDController(
@@ -98,7 +100,7 @@ public class Drivetrain extends SubsystemBase {
         VecBuilder.fill(0.05),
         VecBuilder.fill(0.1, 0.1, 0.1));
 
-    private SimDouble simAngle;// navx sim
+    private SimDouble simAngle;
     public double throttleValue;
     public double targetAngle;
     public boolean fieldOriented;
@@ -127,9 +129,6 @@ public class Drivetrain extends SubsystemBase {
      * @param rotation Angular rate of the robot.
      * @param isOpenLoop Whether the provided x and y speeds are relative to the field.
      */
-    @SuppressWarnings("ParameterName")
-
-    // move the robot from gamepad
     public void drive(double throttle, double strafe, double rotation, boolean isOpenLoop) {
         throttle *= DriveConstants.kMaxSpeedMetersPerSecond;
         strafe *= DriveConstants.kMaxSpeedMetersPerSecond;
@@ -149,13 +148,80 @@ public class Drivetrain extends SubsystemBase {
 
         for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules))
             module.setDesiredState(moduleStates.get(module.getModulePosition()), isOpenLoop);
-        }
+    }
 
-    @Override
-    public void periodic() {
-        // Update the odometry in the periodic block
-        updateOdometry();
-        SmartDashboard.putNumber("Yaw",-gyro.getYaw());
+    // Getters
+    public PIDController getXPidController() { return xController; }
+    public PIDController getYPidController() { return yController; }
+    public ProfiledPIDController getThetaPidController() { return turnController; }
+    public SwerveModule getSwerveModule(ModulePosition modulePosition) { return swerveModules.get(modulePosition); }
+    public SwerveDrivePoseEstimator getOdometry() { return odometry; }
+    public Pose2d getPoseMeters() { return odometry.getEstimatedPosition(); }
+    public Translation2d getTranslation() { return getPoseMeters().getTranslation(); }
+    public Rotation2d getHeadingRotation2d() { return Rotation2d.fromDegrees(getHeadingDegrees()); }
+    public double getHeadingDegrees() { return -Math.IEEEremainder((gyro.getAngle()), 360); }
+    public double getAnglefromThrottle() { return 180 * throttleValue; }
+    public double getX() { return getTranslation().getX(); }
+    public double getY() { return getTranslation().getY(); }
+    public boolean getTurnInPosition(ModulePosition mp, double targetAngle) { return getSwerveModule(mp).turnInPosition(targetAngle); }
+
+    // Setters
+    public void setSwerveModuleStates(SwerveModuleState[] states, boolean isOpenLoop) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeedMetersPerSecond);
+        
+        for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules))
+        module.setDesiredState(states[module.getModulePosition().ordinal()], isOpenLoop);
+    }
+    public void setSwerveModuleStatesAuto(SwerveModuleState[] states) {
+        setSwerveModuleStates(states, false);
+    }
+    public void setOdometry(Pose2d pose) {
+        odometry.resetPosition(pose, pose.getRotation());
+        gyro.reset();
+    }
+    public void setIdleMode(boolean brake) {
+        for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules)) {
+            module.setDriveBrakeMode(brake);
+            module.setTurnBrakeMode(brake);
+        }
+    }
+
+    public Map<ModulePosition, SwerveModuleState> getModuleStates() {
+        Map<ModulePosition, SwerveModuleState> map = new HashMap<>();
+        for (ModulePosition i : swerveModules.keySet()) {
+        map.put(i, swerveModules.get(i).getState());
+        }
+        return map;
+    }
+
+    public void resetModuleEncoders() {
+        for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules))
+        module.resetAngleToAbsolute();
+    }
+
+    public void zeroHeading() {
+        // gyro.reset();
+        // gyro.setAngleAdjustment(0);
+    }
+
+    public double reduceRes(double value, int numPlaces) {
+        double n = Math.pow(10, numPlaces);
+        return Math.round(value * n) / n;
+    }
+
+    // Turn a single module at a % speed
+    public void turnModule(ModulePosition mp, double speed) {
+        getSwerveModule(mp).turnMotorMove(speed);
+    }
+
+    // Turn a single module to a position
+    public void positionTurnModule(ModulePosition mp, double angle) {
+        getSwerveModule(mp).positionTurn(angle);
+    }
+
+    // Drive a single module at a % speed
+    public void driveModule(ModulePosition mp, double speed) {
+        getSwerveModule(mp).driveMotorMove(speed);
     }
 
     public void updateOdometry() {
@@ -175,152 +241,27 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
-    public Pose2d getPoseMeters() {
-        return odometry.getEstimatedPosition();
-    }
-
-    public SwerveDrivePoseEstimator getOdometry() {
-        return odometry;
-    }
-
-    public void setOdometry(Pose2d pose) {
-        odometry.resetPosition(pose, pose.getRotation());
-        gyro.reset();
-    }
-
-    public SwerveModule getSwerveModule(ModulePosition modulePosition) {
-        return swerveModules.get(modulePosition);
-    }
-
-    public double getHeadingDegrees() {
-        return -Math.IEEEremainder((gyro.getAngle()), 360);
-
-    }
-
-    public Rotation2d getHeadingRotation2d() {
-        return Rotation2d.fromDegrees(getHeadingDegrees());
-    }
-
-    public Map<ModulePosition, SwerveModuleState> getModuleStates() {
-        Map<ModulePosition, SwerveModuleState> map = new HashMap<>();
-        for (ModulePosition i : swerveModules.keySet()) {
-        map.put(i, swerveModules.get(i).getState());
-        }
-        return map;
-    }
-
-    /**
-     * Sets the swerve ModuleStates.
-     *
-     * @param desiredStates The desired SwerveModule states.
-     */
-    public void setSwerveModuleStates(SwerveModuleState[] states, boolean isOpenLoop) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeedMetersPerSecond);
-
-        for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules))
-        module.setDesiredState(states[module.getModulePosition().ordinal()], isOpenLoop);
-    }
-
-    public void resetModuleEncoders() {
-        for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules))
-        module.resetAngleToAbsolute();
-    }
-
-    /** Zeroes the heading of the robot. */
-    public void zeroHeading() {
-        // gyro.reset();
-        // gyro.setAngleAdjustment(0);
-
-    }
-
-    public Translation2d getTranslation() {
-        return getPoseMeters().getTranslation();
-    }
-
-    public PIDController getXPidController() {
-        return xController;
-    }
-
-    public PIDController getYPidController() {
-        return yController;
-    }
-
-    public void setSwerveModuleStatesAuto(SwerveModuleState[] states) {
-        setSwerveModuleStates(states, false);
-    }
-
-    public ProfiledPIDController getThetaPidController() {
-        return turnController;
-    }
-
-    public double getX() {
-        return getTranslation().getX();
-    }
-
-    public double getY() {
-        return getTranslation().getY();
-    }
-
-    public double reduceRes(double value, int numPlaces) {
-        double n = Math.pow(10, numPlaces);
-        return Math.round(value * n) / n;
-    }
-
-    /**
-     * Returns the turn rate of the robot.
-     *
-     * @return The turn rate of the robot, in degrees per second
-     */
-    // public double getTurnRate() {
-    // return gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
-    // }
-
-    public void setIdleMode(boolean brake) {
-        for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules)) {
-            module.setDriveBrakeMode(brake);
-            module.setTurnBrakeMode(brake);
-        }
+    @Override
+    public void periodic() {
+        // Update the odometry in the periodic block
+        updateOdometry();
+        SmartDashboard.putNumber("Yaw",-gyro.getYaw());
     }
 
     @Override
     public void simulationPeriodic() {
         ChassisSpeeds chassisSpeedSim = kSwerveKinematics.toChassisSpeeds(
             ModuleMap.orderedValues(getModuleStates(), new SwerveModuleState[0]));
+        
         // want to simulate navX gyro changing as robot turns
         // information available is radians per second and this happens every 20ms
         // radians/2pi = 360 degrees so 1 degree per second is radians / 2pi
         // increment is made every 20 ms so radian adder would be (rads/sec) *(20/1000)
         // degree adder would be radian adder * 360/2pi
         // so degree increment multiplier is 360/100pi = 1.1459
-
         double temp = chassisSpeedSim.omegaRadiansPerSecond * 1.1459155;
-
         temp += simAngle.get();
-
         simAngle.set(temp);
-
         Unmanaged.feedEnable(20);
     }
-
-    public void turnModule(ModulePosition mp, double speed) {
-        getSwerveModule(mp).turnMotorMove(speed);
-    }
-
-    public void positionTurnModule(ModulePosition mp, double angle) {
-        getSwerveModule(mp).positionTurn(angle);
-    }
-
-    public void driveModule(ModulePosition mp, double speed) {
-        getSwerveModule(mp).driveMotorMove(speed);
-    }
-
-    public boolean getTurnInPosition(ModulePosition mp, double targetAngle) {
-        return getSwerveModule(mp).turnInPosition(targetAngle);
-    }
-
-    public double getAnglefromThrottle() {
-
-        return 180 * throttleValue;
-    }
-
 }

@@ -42,37 +42,7 @@ public final class Constants {
 
 
 
-
-
-
-
-
-
-
-
-    public static final class CanConstants {
-
-        public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 40;
-        public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 30;
-        public static final int FRONT_LEFT_MODULE_STEER_CANCODER = 2;
-        
-
-        public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 41;
-        public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 31;
-        public static final int FRONT_RIGHT_MODULE_STEER_CANCODER = 4;
-        
-
-        public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 43;
-        public static final int BACK_LEFT_MODULE_STEER_MOTOR = 33;
-        public static final int BACK_LEFT_MODULE_STEER_CANCODER = 3;
-        
-
-        public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 42;
-        public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 32;
-        public static final int BACK_RIGHT_MODULE_STEER_CANCODER = 1;
-        
-
-    }
+    
 
     public static final class DriveConstants {
 
@@ -206,12 +176,6 @@ public final class Constants {
 
         public static final double kMaxModuleAngularAccelerationDegreesPerSecondSquared = 90;
 
-    }
-
-    public static final class OIConstants {
-        public static final int kDriverControllerPort = 0;
-        public static final int kCoDriverControllerPort = 1;
-    
     }
 
     public static final class TrapezoidConstants {

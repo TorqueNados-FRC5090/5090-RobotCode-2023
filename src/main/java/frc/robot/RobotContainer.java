@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.lists.Constants.OIConstants;
+import static frc.robot.lists.ID_Numbers.ControllerPorts.*;
 
 public class RobotContainer {
     // The robot's subsystems
@@ -28,7 +28,7 @@ public class RobotContainer {
 
     // The driver's controller
 
-    static XboxController driver = new XboxController(OIConstants.kDriverControllerPort);
+    static XboxController driver = new XboxController(DRIVER_PORT);
 
     public RobotContainer() {
         SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());

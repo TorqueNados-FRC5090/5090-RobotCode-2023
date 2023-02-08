@@ -20,10 +20,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 // Import constants
 import frc.robot.lists.Constants;
 import frc.robot.lists.Constants.ModuleOffsets;
-import frc.robot.lists.Constants.CanConstants;
 import frc.robot.lists.Constants.DriveConstants;
 import frc.robot.lists.Constants.DriveConstants.ModulePosition;
-
+import frc.robot.lists.ID_Numbers.SwerveIDs;
 // Other imports
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,9 +45,9 @@ public class Drivetrain extends SubsystemBase {
         Map.of(
             ModulePosition.FRONT_LEFT,
             new SwerveModule(ModulePosition.FRONT_LEFT,
-                CanConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                CanConstants.FRONT_LEFT_MODULE_STEER_MOTOR,
-                CanConstants.FRONT_LEFT_MODULE_STEER_CANCODER,
+                SwerveIDs.FL_DRIVE_ID,
+                SwerveIDs.FL_TURN_ID,
+                SwerveIDs.FL_ENCODER_ID,
                 DriveConstants.kFrontLeftDriveMotorReversed,
                 DriveConstants.kFrontLeftTurningMotorReversed,
                 ModuleOffsets.FL_OFFSET),
@@ -56,18 +55,18 @@ public class Drivetrain extends SubsystemBase {
             ModulePosition.FRONT_RIGHT,
             new SwerveModule(
                 ModulePosition.FRONT_RIGHT,
-                CanConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                CanConstants.FRONT_RIGHT_MODULE_STEER_MOTOR,
-                CanConstants.FRONT_RIGHT_MODULE_STEER_CANCODER,
+                SwerveIDs.FR_DRIVE_ID,
+                SwerveIDs.FR_TURN_ID,
+                SwerveIDs.FR_ENCODER_ID,
                 DriveConstants.kFrontRightDriveMotorReversed,
                 DriveConstants.kFrontRightTurningMotorReversed,
                 ModuleOffsets.FR_OFFSET),
 
             ModulePosition.REAR_LEFT,
             new SwerveModule(ModulePosition.REAR_LEFT,
-                CanConstants.BACK_LEFT_MODULE_DRIVE_MOTOR,
-                CanConstants.BACK_LEFT_MODULE_STEER_MOTOR,
-                CanConstants.BACK_LEFT_MODULE_STEER_CANCODER,
+                SwerveIDs.RL_DRIVE_ID,
+                SwerveIDs.RL_TURN_ID,
+                SwerveIDs.RL_ENCODER_ID,
                 DriveConstants.kBackLeftDriveMotorReversed,
                 DriveConstants.kBackLeftTurningMotorReversed,
                 ModuleOffsets.RL_OFFSET),
@@ -75,9 +74,9 @@ public class Drivetrain extends SubsystemBase {
             ModulePosition.REAR_RIGHT,
             new SwerveModule(
                 ModulePosition.REAR_RIGHT,
-                CanConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                CanConstants.BACK_RIGHT_MODULE_STEER_MOTOR,
-                CanConstants.BACK_RIGHT_MODULE_STEER_CANCODER,
+                SwerveIDs.RR_DRIVE_ID,
+                SwerveIDs.RR_TURN_ID,
+                SwerveIDs.RR_ENCODER_ID,
                 DriveConstants.kBackRightDriveMotorReversed,
                 DriveConstants.kBackRightTurningMotorReversed,
                 ModuleOffsets.RR_OFFSET)));

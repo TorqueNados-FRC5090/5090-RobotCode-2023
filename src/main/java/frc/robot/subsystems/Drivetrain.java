@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 // Import constants
 import frc.robot.lists.Constants;
+import frc.robot.lists.Constants.ModuleOffsets;
 import frc.robot.lists.Constants.CanConstants;
 import frc.robot.lists.Constants.DriveConstants;
 import frc.robot.lists.Constants.DriveConstants.ModulePosition;
@@ -50,7 +51,7 @@ public class Drivetrain extends SubsystemBase {
                 CanConstants.FRONT_LEFT_MODULE_STEER_CANCODER,
                 DriveConstants.kFrontLeftDriveMotorReversed,
                 DriveConstants.kFrontLeftTurningMotorReversed,
-                CanConstants.FRONT_LEFT_MODULE_STEER_OFFSET),
+                ModuleOffsets.FL_OFFSET),
 
             ModulePosition.FRONT_RIGHT,
             new SwerveModule(
@@ -60,26 +61,26 @@ public class Drivetrain extends SubsystemBase {
                 CanConstants.FRONT_RIGHT_MODULE_STEER_CANCODER,
                 DriveConstants.kFrontRightDriveMotorReversed,
                 DriveConstants.kFrontRightTurningMotorReversed,
-                CanConstants.FRONT_RIGHT_MODULE_STEER_OFFSET),
+                ModuleOffsets.FR_OFFSET),
 
-            ModulePosition.BACK_LEFT,
-            new SwerveModule(ModulePosition.BACK_LEFT,
+            ModulePosition.REAR_LEFT,
+            new SwerveModule(ModulePosition.REAR_LEFT,
                 CanConstants.BACK_LEFT_MODULE_DRIVE_MOTOR,
                 CanConstants.BACK_LEFT_MODULE_STEER_MOTOR,
                 CanConstants.BACK_LEFT_MODULE_STEER_CANCODER,
                 DriveConstants.kBackLeftDriveMotorReversed,
                 DriveConstants.kBackLeftTurningMotorReversed,
-                CanConstants.BACK_LEFT_MODULE_STEER_OFFSET),
+                ModuleOffsets.RL_OFFSET),
 
-            ModulePosition.BACK_RIGHT,
+            ModulePosition.REAR_RIGHT,
             new SwerveModule(
-                ModulePosition.BACK_RIGHT,
+                ModulePosition.REAR_RIGHT,
                 CanConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
                 CanConstants.BACK_RIGHT_MODULE_STEER_MOTOR,
                 CanConstants.BACK_RIGHT_MODULE_STEER_CANCODER,
                 DriveConstants.kBackRightDriveMotorReversed,
                 DriveConstants.kBackRightTurningMotorReversed,
-                CanConstants.BACK_RIGHT_MODULE_STEER_OFFSET)));
+                ModuleOffsets.RR_OFFSET)));
 
     // The gyro sensor
     private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);

@@ -27,7 +27,13 @@ public final class Constants {
         public static final double MAX_DRIVE = 0.5;            // Simple speed limit so we don't drive too fast
     }
 
-
+    /** Turning a module to its offset will point it forward */
+    public static final class ModuleOffsets {
+        public static final double FL_OFFSET = 120;
+        public static final double FR_OFFSET = 188;
+        public static final double RL_OFFSET = 253;
+        public static final double RR_OFFSET = 135;
+    }
 
 
 
@@ -49,22 +55,22 @@ public final class Constants {
         public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 40;
         public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 30;
         public static final int FRONT_LEFT_MODULE_STEER_CANCODER = 2;
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 120;
+        
 
         public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 41;
         public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 31;
         public static final int FRONT_RIGHT_MODULE_STEER_CANCODER = 4;
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 188;
+        
 
         public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 43;
         public static final int BACK_LEFT_MODULE_STEER_MOTOR = 33;
         public static final int BACK_LEFT_MODULE_STEER_CANCODER = 3;
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = 253;
+        
 
         public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 42;
         public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 32;
         public static final int BACK_RIGHT_MODULE_STEER_CANCODER = 1;
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 135;
+        
 
     }
 
@@ -87,15 +93,15 @@ public final class Constants {
         public enum ModulePosition {
             FRONT_LEFT,
             FRONT_RIGHT,
-            BACK_LEFT,
-            BACK_RIGHT
+            REAR_LEFT,
+            REAR_RIGHT
         }
 
         public static final Map<ModulePosition, Translation2d> kModuleTranslations = Map.of(
             ModulePosition.FRONT_LEFT, new Translation2d(kWheelBase / 2, kTrackWidth / 2),
             ModulePosition.FRONT_RIGHT, new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-            ModulePosition.BACK_LEFT, new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-            ModulePosition.BACK_RIGHT, new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+            ModulePosition.REAR_LEFT, new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+            ModulePosition.REAR_RIGHT, new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
         public static final SwerveDriveKinematics kSwerveKinematics = new SwerveDriveKinematics(
             ModuleMap.orderedValues(kModuleTranslations, new Translation2d[0]));

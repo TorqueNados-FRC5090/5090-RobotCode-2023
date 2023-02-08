@@ -50,7 +50,7 @@ public class PositionTurnModule extends CommandBase {
         // When the command ends, stop turning.
         drivetrain.turnModule(ModulePosition.FRONT_LEFT, 0);
         drivetrain.turnModule(ModulePosition.FRONT_RIGHT, 0);
-        drivetrain.turnModule(ModulePosition.BACK_RIGHT, 0);
-        drivetrain.turnModule(ModulePosition.BACK_LEFT, 0);
+        drivetrain.turnModule(ModulePosition.REAR_RIGHT, 0);
+        drivetrain.turnModule(ModulePosition.REAR_LEFT, 0);
     }
 }

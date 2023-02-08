@@ -66,8 +66,8 @@ public class TurnModuleTest extends CommandBase {
         // Each motor is individually controlled by one of the instructions
         swerveDrive.turnModule(ModulePosition.FRONT_LEFT, throttle);
         swerveDrive.turnModule(ModulePosition.FRONT_RIGHT, strafe);
-        swerveDrive.turnModule(ModulePosition.BACK_LEFT, rotation);
-        swerveDrive.turnModule(ModulePosition.BACK_RIGHT, test);
+        swerveDrive.turnModule(ModulePosition.REAR_LEFT, rotation);
+        swerveDrive.turnModule(ModulePosition.REAR_RIGHT, test);
     }
 
     // Returns true when the command should end.
@@ -82,7 +82,7 @@ public class TurnModuleTest extends CommandBase {
         // If the command is interrupted, stop turning.
         swerveDrive.turnModule(ModulePosition.FRONT_LEFT, 0);
         swerveDrive.turnModule(ModulePosition.FRONT_RIGHT, 0);
-        swerveDrive.turnModule(ModulePosition.BACK_RIGHT, 0);
-        swerveDrive.turnModule(ModulePosition.BACK_LEFT, 0);
+        swerveDrive.turnModule(ModulePosition.REAR_RIGHT, 0);
+        swerveDrive.turnModule(ModulePosition.REAR_LEFT, 0);
     }
 }

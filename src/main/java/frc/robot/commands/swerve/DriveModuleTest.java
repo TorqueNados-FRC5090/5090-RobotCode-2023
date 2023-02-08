@@ -71,14 +71,14 @@ public class DriveModuleTest extends CommandBase {
         if (!individual) {
             drivetrain.driveModule(ModulePosition.FRONT_LEFT, throttle);
             drivetrain.driveModule(ModulePosition.FRONT_RIGHT, throttle);
-            drivetrain.driveModule(ModulePosition.BACK_LEFT, throttle);
-            drivetrain.driveModule(ModulePosition.BACK_RIGHT, throttle);
+            drivetrain.driveModule(ModulePosition.REAR_LEFT, throttle);
+            drivetrain.driveModule(ModulePosition.REAR_RIGHT, throttle);
         } 
         else {
             drivetrain.driveModule(ModulePosition.FRONT_LEFT, throttle);
             drivetrain.driveModule(ModulePosition.FRONT_RIGHT, strafe);
-            drivetrain.driveModule(ModulePosition.BACK_LEFT, rotation);
-            drivetrain.driveModule(ModulePosition.BACK_RIGHT, test);
+            drivetrain.driveModule(ModulePosition.REAR_LEFT, rotation);
+            drivetrain.driveModule(ModulePosition.REAR_RIGHT, test);
         }
     }
 
@@ -94,7 +94,7 @@ public class DriveModuleTest extends CommandBase {
         // If the command is interrupted, stop driving.
         drivetrain.driveModule(ModulePosition.FRONT_LEFT,0);
         drivetrain.driveModule(ModulePosition.FRONT_RIGHT, 0);
-        drivetrain.driveModule(ModulePosition.BACK_RIGHT, 0);
-        drivetrain.driveModule(ModulePosition.BACK_LEFT, 0);
+        drivetrain.driveModule(ModulePosition.REAR_RIGHT, 0);
+        drivetrain.driveModule(ModulePosition.REAR_LEFT, 0);
     }
 }

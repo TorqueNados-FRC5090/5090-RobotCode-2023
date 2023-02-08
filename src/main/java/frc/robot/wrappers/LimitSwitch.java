@@ -2,15 +2,22 @@ package frc.robot.wrappers;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
-// Wraps DigitalInput to represent a laser detector
+/** Wraps DigitalInput to represent a laser detector */
 public class LimitSwitch {
     private DigitalInput limSwitch;
 
-    // Constructor
+     /** 
+     * Constructs LimitSwitch object 
+     * 
+     * @param port The number of the DIO input
+     */
     public LimitSwitch(int port) {
         limSwitch = new DigitalInput(port);
     }
 
-    // Returns true if the switch is being pressed
+    /** @return true if the switch is being pressed */
     public boolean isPressed() { return !limSwitch.get(); }
+
+    /** @return true if the switch is not being pressed */
+    public boolean isNotPressed() { return limSwitch.get(); }
 }

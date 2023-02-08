@@ -9,10 +9,10 @@ public class DigitalLED {
     
     private DigitalOutput LED;
 
-    /**
-     * Constructs a DigitalLED object
+     /** 
+     * Constructs DigitalLED object 
      * 
-     * @param port The DIO port that we use
+     * @param port The number of the DIO output
      */
     public DigitalLED(int port){
 

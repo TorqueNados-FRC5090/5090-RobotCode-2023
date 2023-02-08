@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.Constants.OIConstants;
+import frc.robot.lists.Constants.OIConstants;
 
 public class RobotContainer {
     // The robot's subsystems

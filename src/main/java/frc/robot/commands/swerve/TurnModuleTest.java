@@ -4,7 +4,7 @@ package frc.robot.commands.swerve;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.math.MathUtil;
 import java.util.function.DoubleSupplier;
-import frc.robot.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.DriveConstants.ModulePosition;
 import frc.robot.subsystems.Drivetrain;
 
 // The purpose of this command is to test the turning motors in a swerve chassis

@@ -2,7 +2,7 @@ package frc.robot.utils;
 
 // Imports
 import java.util.*;
-import frc.robot.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.DriveConstants.ModulePosition;
 
 /**
  * Contains functions to convert {@link Map}s with {@link ModulePosition} keys to and from arrays so

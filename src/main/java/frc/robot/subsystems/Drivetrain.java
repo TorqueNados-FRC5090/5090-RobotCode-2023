@@ -18,10 +18,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 // Import constants
-import frc.robot.Constants;
-import frc.robot.Constants.CanConstants;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants;
+import frc.robot.lists.Constants.CanConstants;
+import frc.robot.lists.Constants.DriveConstants;
+import frc.robot.lists.Constants.DriveConstants.ModulePosition;
 
 // Other imports
 import edu.wpi.first.wpilibj.RobotBase;

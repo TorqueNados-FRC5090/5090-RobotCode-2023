@@ -3,7 +3,7 @@ package frc.robot.commands.swerve;
 // Imports
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.DriveConstants.ModulePosition;
 import frc.robot.subsystems.Drivetrain;
 
 // The purpose of this command is to turn a swerve module to face some position

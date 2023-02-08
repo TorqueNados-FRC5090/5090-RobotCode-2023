@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // Other imports
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.lists.Constants.DriveConstants;
 import edu.wpi.first.math.util.Units;
 
 // The purpose of this command is to drive the robot two feet forwards.

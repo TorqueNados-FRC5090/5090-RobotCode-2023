@@ -21,9 +21,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.utils.AngleUtils;
 
 // Import constants
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.DriveConstants.ModulePosition;
-import frc.robot.Constants.ModuleConstants;
+import frc.robot.lists.Constants.DriveConstants;
+import frc.robot.lists.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.ModuleConstants;
 import edu.wpi.first.math.util.Units;
 
 // Other imports

@@ -87,11 +87,11 @@ public class Drivetrain extends SubsystemBase {
     private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
     // Used for driving autonomously
-    private PIDController xController = new PIDController(DriveConstants.kP_X, 0, DriveConstants.kD_X);
-    private PIDController yController = new PIDController(DriveConstants.kP_Y, 0, DriveConstants.kD_Y);
+    private PIDController xController = new PIDController(DriveConstants.X_CONTROLLER_P, 0, DriveConstants.X_CONTROLLER_D);
+    private PIDController yController = new PIDController(DriveConstants.Y_CONTROLLER_P, 0, DriveConstants.Y_CONTROLLER_D);
     private ProfiledPIDController turnController = new ProfiledPIDController(
-        DriveConstants.kP_Theta, 0,
-        DriveConstants.kD_Theta,
+        DriveConstants.TURN_CONTROLLER_P, 0,
+        DriveConstants.TURN_CONTROLLER_D,
         Constants.TrapezoidConstants.kThetaControllerConstraints);
 
     private final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(
@@ -132,9 +132,9 @@ public class Drivetrain extends SubsystemBase {
      * @param isOpenLoop Whether the provided x and y speeds are relative to the field.
      */
     public void drive(double throttle, double strafe, double rotation, boolean isOpenLoop) {
-        throttle *= DriveConstants.kMaxSpeedMetersPerSecond;
-        strafe *= DriveConstants.kMaxSpeedMetersPerSecond;
-        rotation *= DriveConstants.kMaxRotationRadiansPerSecond;
+        throttle *= DriveConstants.MAX_TRANSLATION_SPEED;
+        strafe *= DriveConstants.MAX_TRANSLATION_SPEED;
+        rotation *= DriveConstants.MAX_ROTATION_SPEED;
 
         SmartDashboard.putNumber("Rotn1", rotation);
         ChassisSpeeds chassisSpeeds =fieldOriented
@@ -146,7 +146,7 @@ public class Drivetrain extends SubsystemBase {
             .of(kSwerveKinematics.toSwerveModuleStates(chassisSpeeds));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(
-            ModuleMap.orderedValues(moduleStates, new SwerveModuleState[0]), DriveConstants.kMaxSpeedMetersPerSecond);
+            ModuleMap.orderedValues(moduleStates, new SwerveModuleState[0]), DriveConstants.MAX_TRANSLATION_SPEED);
 
         for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules))
             module.setDesiredState(moduleStates.get(module.getModulePosition()), isOpenLoop);
@@ -169,7 +169,7 @@ public class Drivetrain extends SubsystemBase {
 
     // Setters
     public void setSwerveModuleStates(SwerveModuleState[] states, boolean isOpenLoop) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_TRANSLATION_SPEED);
         
         for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules))
         module.setDesiredState(states[module.getModulePosition().ordinal()], isOpenLoop);

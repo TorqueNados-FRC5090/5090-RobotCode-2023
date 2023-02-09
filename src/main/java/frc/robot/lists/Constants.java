@@ -57,7 +57,7 @@ public final class Constants {
         public static final double WHEEL_BASE = Units.inchesToMeters(27);
 
 
-        /** The position of each module in writing */
+        /** The position of each module in writing as an enum */
         public enum ModulePosition {
             FRONT_LEFT,
             FRONT_RIGHT,
@@ -81,59 +81,50 @@ public final class Constants {
 
 
     
-
+    /** Constants related to the position of each module */
+    // The SysId tool provides a convenient method for obtaining these values for your robot.
     public static final class DriveConstants {
-        // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
-        // These characterization values MUST be determined either experimentally or
-        // theoretically
-        // for *your* robot's drive.
-        // The SysId tool provides a convenient method for obtaining these values for
-        // your robot.
-        public static final double ksVolts = 1;
-        public static final double kvVoltSecondsPerMeter = 0.8;
-        public static final double kaVoltSecondsSquaredPerMeter = 0.15;
+        public static final double STATIC_GAIN = 1;
+        public static final double VELOCITY_GAIN = 0.8;
+        public static final double ACCELERATION_GAIN = 0.15;
 
-        public static final double kMaxSpeedMetersPerSecond = 3;
+        /** Max speed of the robot in m/sec */
+        public static final double MAX_TRANSLATION_SPEED = 3;
+        /** Max rotational speed of the robot in rads/sec */
+        public static final double MAX_ROTATION_SPEED = Math.PI;
+        public static final double MAX_ROTATION_SPEED_SQUARED = Math.PI;
 
-        public static final double kMaxRotationRadiansPerSecond = Math.PI;
-        public static final double kMaxRotationRadiansPerSecondSquared = Math.PI;
+        public static final double X_CONTROLLER_P = 0.2;
+        public static final double X_CONTROLLER_D = 0;
+        public static final double Y_CONTROLLER_P = 0.2;
+        public static final double Y_CONTROLLER_D = 0;
+        public static final double TURN_CONTROLLER_P = 8;
+        public static final double TURN_CONTROLLER_D = 0;
 
-        public static final double kP_X = 0.2;
-        public static final double kD_X = 0;
-        public static final double kP_Y = 0.2;
-        public static final double kD_Y = 0;
-        public static final double kP_Theta = 8;
-        public static final double kD_Theta = 0;
-        public static double kTranslationSlew = 4;
-        public static double kRotationSlew = 6;
-        public static double kControllerDeadband = .05;
-        public static double kControllerRotDeadband = .1;
+        /** Higher values make the robot drive more aggressively */
+        public static double TRANSLATION_SLEW = 4;
+        /** Higher values make the robot spin more aggressively */
+        public static double ROTATION_SLEW = 6;
+
+        /** Translation instructions closer to 0 than the deadband will be set to 0 */
+        public static double TRANSLATION_DEADBAND = .05;
+        /** Rotation instructions closer to 0 than the deadband will be set to 0 */
+        public static double ROTATION_DEADBAND = .1;
         
-        public static double kVoltCompensation=12.6;
-
-        // public static final double kMaxRotationRadiansPerSecond =
-        // Math.hypot(DriveConstants.kTrackWidth / 2.0,
-        // DriveConstants.kWheelBase / 2.0);
-
-        // public static final double MAX_ANGULAR_ACCEL_RADIANS_PER_SECOND_SQUARED = 2 *
-        // Math.PI;
-
+        public static double VOLT_COMPENSATION = 12.6;
     }
 
     public static final class ModuleConstants {
 
         // ModuleConfiguration MK4I_L1
+        /** Diameter of the wheels in meters */
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
+        // Gear Ratios
+        public static double mk4iL1DriveGearRatio = 1 / ((14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0));
+        public static double mk4iL2DriveGearRatio = 1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
+        public static double mk4iL1TurnGearRatio = 1 / ((14.0 / 50.0) * (10.0 / 60.0));
 
-        public static double mk4iL1DriveGearRatio = 1 / ((14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0));// 8.14 .122807
-
-        public static double mk4iL2DriveGearRatio = 1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)); // 5090 comment: new ratio
-
-        public static double mk4iL1TurnGearRatio = 1 / ((14.0 / 50.0) * (10.0 / 60.0));// 21.43 1/.046667
-
-        public static final double kDriveMetersPerEncRev =
-
-            (kWheelDiameterMeters * Math.PI) / mk4iL1DriveGearRatio;
+        public static final double kDriveMetersPerEncRev = (kWheelDiameterMeters * Math.PI) / mk4iL1DriveGearRatio;
 
         // in 1 minute at 1 rpm encoder drive moves kDriveMetersPerEncRev
         // so in 1 second encoder travels 1/60 revs = kDriveMetersPerEncRev/60

@@ -109,7 +109,7 @@ public class SwerveModule extends SubsystemBase {
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         driveMotor.restoreFactoryDefaults();
         driveMotor.setSmartCurrentLimit(20);
-        driveMotor.enableVoltageCompensation(DriveConstants.kVoltCompensation);
+        driveMotor.enableVoltageCompensation(DriveConstants.VOLT_COMPENSATION);
         driveMotor.setInverted(driveMotorReversed);
         driveMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0, 100);
         driveMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1, 20);
@@ -120,7 +120,7 @@ public class SwerveModule extends SubsystemBase {
         turningMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         turningMotor.restoreFactoryDefaults();
         turningMotor.setSmartCurrentLimit(20);
-        turningMotor.enableVoltageCompensation(DriveConstants.kVoltCompensation);
+        turningMotor.enableVoltageCompensation(DriveConstants.VOLT_COMPENSATION);
         turningMotor.setInverted(turningMotorReversed);
         turningMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0, 10);
         turningMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1, 20);
@@ -237,7 +237,7 @@ public class SwerveModule extends SubsystemBase {
 
         // turn motor code
         // Prevent rotating module if speed is less then 1%. Prevents Jittering.
-        angle = (Math.abs(state.speedMetersPerSecond) <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
+        angle = (Math.abs(state.speedMetersPerSecond) <= (DriveConstants.MAX_TRANSLATION_SPEED * 0.01))
             ? lastAngle
             : state.angle.getDegrees();
 
@@ -305,7 +305,7 @@ public class SwerveModule extends SubsystemBase {
         // if robot is not moving, stop the turn motor oscillating
         if (turnAngleError < turnDeadband 
                 && Math.abs(state.speedMetersPerSecond) 
-                <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
+                <= (DriveConstants.MAX_TRANSLATION_SPEED * 0.01))
             pidOut = 0;
 
         turningMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());

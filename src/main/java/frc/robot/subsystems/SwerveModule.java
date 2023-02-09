@@ -59,9 +59,9 @@ public class SwerveModule extends SubsystemBase {
     double testAngle;
     
     SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(
-        ModuleConstants.ksVolts,
-        ModuleConstants.kvVoltSecondsPerMeter,
-        ModuleConstants.kaVoltSecondsSquaredPerMeter);
+        ModuleConstants.STATIC_GAIN,
+        ModuleConstants.VELOCITY_GAIN,
+        ModuleConstants.ACCELERATION_GAIN);
 
     private double lastAngle;
     public double angle;
@@ -138,8 +138,8 @@ public class SwerveModule extends SubsystemBase {
         // Setup the encoder built into the driving motor
         // This encoder is used to keep track of how much each motor has driven since startup.
         driveEncoder = driveMotor.getEncoder();
-        driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveMetersPerEncRev);
-        driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncRPMperMPS);
+        driveEncoder.setPositionConversionFactor(ModuleConstants.DRIVE_REVS_TO_M);
+        driveEncoder.setVelocityConversionFactor(ModuleConstants.DRIVE_RPM_TO_MPS);
 
         driveVelController = driveMotor.getPIDController();
 
@@ -160,9 +160,9 @@ public class SwerveModule extends SubsystemBase {
         turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningDegreesPerEncRev / 60);
 
         if (!useRRPid)
-        turnSMController = turningMotor.getPIDController();
+            turnSMController = turningMotor.getPIDController();
         else
-        turnController = new PIDController(ModuleConstants.kPModuleTurnController, 0, 0);
+            turnController = new PIDController(ModuleConstants.kPModuleTurnController, 0, 0);
 
         if (useRRPid)
             tunePosGains();

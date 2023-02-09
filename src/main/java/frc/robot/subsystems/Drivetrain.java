@@ -18,13 +18,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 // Import constants
-import frc.robot.lists.Constants;
+import frc.robot.lists.Constants.TrapezoidConstants;
 import frc.robot.lists.Constants.SwerveInversions;
 import frc.robot.lists.Constants.ModuleOffsets;
 import frc.robot.lists.Constants.DriveConstants;
 import frc.robot.lists.Constants.ModulePositions.ModulePosition;
 import frc.robot.lists.Constants.ModulePositions;
 import frc.robot.lists.ID_Numbers.SwerveIDs;
+
 // Other imports
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -92,7 +93,7 @@ public class Drivetrain extends SubsystemBase {
     private ProfiledPIDController turnController = new ProfiledPIDController(
         DriveConstants.TURN_CONTROLLER_P, 0,
         DriveConstants.TURN_CONTROLLER_D,
-        Constants.TrapezoidConstants.kThetaControllerConstraints);
+        TrapezoidConstants.TURN_CONTROLLER_CONSTRAINTS);
 
     private final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(
         getHeadingRotation2d(),

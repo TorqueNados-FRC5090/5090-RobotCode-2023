@@ -5,23 +5,20 @@ package frc.robot.lists;
  * for things like CAN channels and DIO ports.
  * 
  * DO NOT USE THIS FOR ANY OTHER PURPOSE
- * To access numbers in this file, statically import it like so:
- * import static frc.robot.lists.ID_Numbers.*;
+ * 
+ * To access numbers in this file, import or statically import one of its subclasses:
+ * example:
+ * import static frc.robot.lists.ID_Numbers.SwerveIDs.*;
+ * import frc.robot.lists.ID_Numbers.*;
  */
 
-/**
- * Holds port and ID numbers.
- */
+/** Holds port and ID numbers. */
 public final class ID_Numbers {
     /** Ports used by controllers. */
     public static final class ControllerPorts {
         public static final int DRIVER_PORT = 0;
         public static final int OPERATOR_PORT = 1;
     }
-
-    // -------- DIO ports ---------
-
-    // -------- Motor IDs ---------
 
     /** IDs used by the drivetrain.
         3X for turning, 4X for driving, 5X for abs encoders. */

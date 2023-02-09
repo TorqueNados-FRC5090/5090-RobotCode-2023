@@ -76,12 +76,8 @@ public final class Constants {
         public static final SwerveDriveKinematics SWERVE_KINEMATICS = new SwerveDriveKinematics(
             ModuleMap.orderedValues(MODULE_POSITIONS, new Translation2d[0]));
     }
-
-
-
-
     
-    /** Constants related to the position of each module */
+    /** Constants used to drive the robot */
     // The SysId tool provides a convenient method for obtaining these values for your robot.
     public static final class DriveConstants {
         public static final double STATIC_GAIN = 1;
@@ -114,48 +110,48 @@ public final class Constants {
         public static double VOLT_COMPENSATION = 12.6;
     }
 
+    /** Constants used by individual modules */
     public static final class ModuleConstants {
+        /** The diameter of a module's wheel, measured in meters */
+        public static final double WHEEL_DIAMETER = Units.inchesToMeters(4);
 
-        // ModuleConfiguration MK4I_L1
-        /** Diameter of the wheels in meters */
-        public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
-        // Gear Ratios
-        public static double mk4iL1DriveGearRatio = 1 / ((14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0));
-        public static double mk4iL2DriveGearRatio = 1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
-        public static double mk4iL1TurnGearRatio = 1 / ((14.0 / 50.0) * (10.0 / 60.0));
+        // Swerve gear ratios
+        public static double DRIVE_RATIO_SLOW = 1 / ((14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0));
+        public static double DRIVE_RATIO_FAST = 1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
+        public static double TURN_RATIO = 1 / ((14.0 / 50.0) * (10.0 / 60.0));
 
-        public static final double kDriveMetersPerEncRev = (kWheelDiameterMeters * Math.PI) / mk4iL1DriveGearRatio;
+        /** Drive motor revolutions * DRIVE_REVS_TO_M = distance in meters */
+        public static final double DRIVE_REVS_TO_M = (WHEEL_DIAMETER * Math.PI) / DRIVE_RATIO_SLOW;
 
-        // in 1 minute at 1 rpm encoder drive moves kDriveMetersPerEncRev
-        // so in 1 second encoder travels 1/60 revs = kDriveMetersPerEncRev/60
-        // so MPS
+        // 1 RPM * DRIVE_REVS_TO_M = speed in m/min. Divide by 60 to find m/sec
+        /** Drive motor RPM * DRIVE_RPM_TO_MPS = speed in m/sec */
+        public static final double DRIVE_RPM_TO_MPS = DRIVE_REVS_TO_M / 60;// 0.000653304296852
 
-        public static final double kDriveEncRPMperMPS = kDriveMetersPerEncRev / 60;// 0.000653304296852
+        public static double kEncoderRevsPerMeter = 1 / DRIVE_REVS_TO_M;// 25.511337897182322
 
-        public static double kEncoderRevsPerMeter = 1 / kDriveMetersPerEncRev;// 25.511337897182322
-
-        public static double kFreeMetersPerSecond = 5600 * kDriveEncRPMperMPS;// 3.6
+        public static double kFreeMetersPerSecond = 5600 * DRIVE_RPM_TO_MPS;// 3.6
     
-        public static final double kTurningDegreesPerEncRev =
+        public static final double kTurningDegreesPerEncRev = 360 / TURN_RATIO;
 
-            360 / mk4iL1TurnGearRatio;
+        // Use sysid on robot to get these values
+        public static double STATIC_GAIN = .055;
+        public static double VELOCITY_GAIN = .2;
+        public static double ACCELERATION_GAIN = .02;
 
-        // max turn speed = (5400/ 21.43) revs per min 240 revs per min 4250 deg per
-        // min
+        // Used, but uninitialized and uninstantiated
+        public static double kPModuleTurnController;
+
+
+        // ------ Values below this line are unused ------
+
+        // max turn speed = (5400/ 21.43) revs per min 240 revs per min 4250 deg per min
         public static final double kPModuleTurningController = .025;
 
         public static final double kPModuleDriveController = .2;
 
-        // use sysid on robot
-        public static double ksVolts = .055;
-        public static double kvVoltSecondsPerMeter = .2;
-        public static double kaVoltSecondsSquaredPerMeter = .02;
-
-        public static double kPModuleTurnController;
-
         public static double kSMmaxAccel = 90;//deg per sec per sec
 
-        public static double maxVel= 90; // deg per sec
+        public static double maxVel = 90; // deg per sec
 
         public static double allowedErr = .05;//deg
 
@@ -166,31 +162,26 @@ public final class Constants {
         // sysid on module?
         public static final double kvTurnVoltSecondsPerRadian = 1.47; // originally 1.5
         public static final double kaTurnVoltSecondsSquaredPerRadian = 0.348; // originally 0.3
-
         
         public static double kMaxModuleAngularSpeedDegPerSec = 90;
 
         public static final double kMaxModuleAngularAccelerationDegreesPerSecondSquared = 90;
-
     }
 
+    /** Constants related to the trapezoid constraint profile */
     public static final class TrapezoidConstants {
-        
+        // Unused values
         public static final double kMaxSpeedMetersPerSecond = 3;
-
         public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-
-        // public static final double kMaxAngularSpeedDegreesPerSecond = 800;
-
-        // public static final double kMaxAngularSpeedDegreesPerSecondSquared =2000;
-        public static final double kMaxRotationRadiansPerSecond = Math.PI;
-        public static final double kMaxRotationRadiansPerSecondSquared = Math.PI * 2;
-
         public static final double kPXController = 1;
         public static final double kPYController = 1;
         public static final double kPThetaController = 1;
 
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-            kMaxRotationRadiansPerSecond, kMaxRotationRadiansPerSecondSquared);
+
+        public static final double MAX_WHEEL_SPEED = Math.PI;
+        public static final double MAX_WHEEL_SPEED_SQUARED = Math.PI * 2;
+
+        public static final TrapezoidProfile.Constraints TURN_CONTROLLER_CONSTRAINTS = new TrapezoidProfile.Constraints(
+            MAX_WHEEL_SPEED, MAX_WHEEL_SPEED_SQUARED);
     }
 }

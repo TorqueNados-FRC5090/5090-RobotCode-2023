@@ -35,31 +35,29 @@ public final class Constants {
         public static final double RR_OFFSET = 135;
     }
 
+    /** Whether or not each swerve component should be inverted/reversed */
+    public static final class SwerveInversions {
+        public static final boolean INVERT_FL_TURN = true;
+        public static final boolean INVERT_FR_TURN = true;
+        public static final boolean INVERT_RL_TURN = true;
+        public static final boolean INVERT_RR_TURN = true;
 
+        public static final boolean INVERT_FL_DRIVE = false;
+        public static final boolean INVERT_RL_DRIVE = false;
+        public static final boolean INVERT_FR_DRIVE = true;
+        public static final boolean INVERT_RR_DRIVE = true;
 
+        public static final boolean INVERT_GYRO = true;
+    }
 
-
-
-
-
-    
-
-    public static final class DriveConstants {
-
-        public static final boolean kFrontLeftTurningMotorReversed = true;
-        public static final boolean kBackLeftTurningMotorReversed = true;
-        public static final boolean kFrontRightTurningMotorReversed = true;
-        public static final boolean kBackRightTurningMotorReversed = true;
-
-        public static final boolean kFrontLeftDriveMotorReversed = false;
-        public static final boolean kBackLeftDriveMotorReversed = false;
-        public static final boolean kFrontRightDriveMotorReversed = true;
-        public static final boolean kBackRightDriveMotorReversed = true;
-
-        public static final double kTrackWidth = Units.inchesToMeters(22);
+    /** Constants related to the position of each module */
+    public static final class ModulePositions {
+        public static final double TRACK_WIDTH = Units.inchesToMeters(22);
         // Distance between centers of right and left wheels on robot
-        public static final double kWheelBase = Units.inchesToMeters(27);
+        public static final double WHEEL_BASE = Units.inchesToMeters(27);
 
+
+        /** The position of each module in writing */
         public enum ModulePosition {
             FRONT_LEFT,
             FRONT_RIGHT,
@@ -67,17 +65,24 @@ public final class Constants {
             REAR_RIGHT
         }
 
-        public static final Map<ModulePosition, Translation2d> kModuleTranslations = Map.of(
-            ModulePosition.FRONT_LEFT, new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-            ModulePosition.FRONT_RIGHT, new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-            ModulePosition.REAR_LEFT, new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-            ModulePosition.REAR_RIGHT, new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+        /** The position of each module stored as a coordinate */
+        public static final Map<ModulePosition, Translation2d> MODULE_POSITIONS = Map.of(
+            ModulePosition.FRONT_LEFT, new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2),
+            ModulePosition.FRONT_RIGHT, new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2),
+            ModulePosition.REAR_LEFT, new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2),
+            ModulePosition.REAR_RIGHT, new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2));
+            
+        /** {@link SwerveDriveKinematics} */
+        public static final SwerveDriveKinematics SWERVE_KINEMATICS = new SwerveDriveKinematics(
+            ModuleMap.orderedValues(MODULE_POSITIONS, new Translation2d[0]));
+    }
 
-        public static final SwerveDriveKinematics kSwerveKinematics = new SwerveDriveKinematics(
-            ModuleMap.orderedValues(kModuleTranslations, new Translation2d[0]));
 
-        public static final boolean kGyroReversed = true;
 
+
+    
+
+    public static final class DriveConstants {
         // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
         // These characterization values MUST be determined either experimentally or
         // theoretically
@@ -196,11 +201,5 @@ public final class Constants {
 
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
             kMaxRotationRadiansPerSecond, kMaxRotationRadiansPerSecondSquared);
-
-        // // Constraint for the motion profiled robot angle controller
-        // public static final TrapezoidProfile.Constraints kThetaControllerConstraints
-        // = new TrapezoidProfile.Constraints(
-        // Units.radiansToDegrees(kMaxAngularSpeedRadiansPerSecond),
-        // Units.radiansToDegrees(kMaxAngularSpeedRadiansPerSecondSquared));
     }
 }

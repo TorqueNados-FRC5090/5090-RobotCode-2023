@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.lists.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.ModulePositions.ModulePosition;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.SwerveModule;
 

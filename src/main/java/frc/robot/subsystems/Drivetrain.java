@@ -19,9 +19,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 // Import constants
 import frc.robot.lists.Constants;
+import frc.robot.lists.Constants.SwerveInversions;
 import frc.robot.lists.Constants.ModuleOffsets;
 import frc.robot.lists.Constants.DriveConstants;
-import frc.robot.lists.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.ModulePositions.ModulePosition;
+import frc.robot.lists.Constants.ModulePositions;
 import frc.robot.lists.ID_Numbers.SwerveIDs;
 // Other imports
 import edu.wpi.first.wpilibj.RobotBase;
@@ -38,7 +40,7 @@ import com.ctre.phoenix.unmanaged.Unmanaged;
 // In this case, a drivetrain consists of four swerve modules arranged in a square.
 public class Drivetrain extends SubsystemBase {
 
-    public SwerveDriveKinematics kSwerveKinematics = DriveConstants.kSwerveKinematics;
+    public SwerveDriveKinematics kSwerveKinematics = ModulePositions.SWERVE_KINEMATICS;
 
     // Initialize all four motors in a hashmap
     public final HashMap<ModulePosition, SwerveModule> swerveModules = new HashMap<>(
@@ -48,8 +50,8 @@ public class Drivetrain extends SubsystemBase {
                 SwerveIDs.FL_DRIVE_ID,
                 SwerveIDs.FL_TURN_ID,
                 SwerveIDs.FL_ENCODER_ID,
-                DriveConstants.kFrontLeftDriveMotorReversed,
-                DriveConstants.kFrontLeftTurningMotorReversed,
+                SwerveInversions.INVERT_FL_DRIVE,
+                SwerveInversions.INVERT_FL_TURN,
                 ModuleOffsets.FL_OFFSET),
 
             ModulePosition.FRONT_RIGHT,
@@ -58,8 +60,8 @@ public class Drivetrain extends SubsystemBase {
                 SwerveIDs.FR_DRIVE_ID,
                 SwerveIDs.FR_TURN_ID,
                 SwerveIDs.FR_ENCODER_ID,
-                DriveConstants.kFrontRightDriveMotorReversed,
-                DriveConstants.kFrontRightTurningMotorReversed,
+                SwerveInversions.INVERT_FR_DRIVE,
+                SwerveInversions.INVERT_FR_TURN,
                 ModuleOffsets.FR_OFFSET),
 
             ModulePosition.REAR_LEFT,
@@ -67,8 +69,8 @@ public class Drivetrain extends SubsystemBase {
                 SwerveIDs.RL_DRIVE_ID,
                 SwerveIDs.RL_TURN_ID,
                 SwerveIDs.RL_ENCODER_ID,
-                DriveConstants.kBackLeftDriveMotorReversed,
-                DriveConstants.kBackLeftTurningMotorReversed,
+                SwerveInversions.INVERT_RL_DRIVE,
+                SwerveInversions.INVERT_RL_TURN,
                 ModuleOffsets.RL_OFFSET),
 
             ModulePosition.REAR_RIGHT,
@@ -77,8 +79,8 @@ public class Drivetrain extends SubsystemBase {
                 SwerveIDs.RR_DRIVE_ID,
                 SwerveIDs.RR_TURN_ID,
                 SwerveIDs.RR_ENCODER_ID,
-                DriveConstants.kBackRightDriveMotorReversed,
-                DriveConstants.kBackRightTurningMotorReversed,
+                SwerveInversions.INVERT_RR_DRIVE,
+                SwerveInversions.INVERT_RR_TURN,
                 ModuleOffsets.RR_OFFSET)));
 
     // The gyro sensor
@@ -230,7 +232,7 @@ public class Drivetrain extends SubsystemBase {
             ModuleMap.orderedValues(getModuleStates(), new SwerveModuleState[0]));
 
         for (SwerveModule module : ModuleMap.orderedValuesList(swerveModules)) {
-        Translation2d modulePositionFromChassis = DriveConstants.kModuleTranslations
+        Translation2d modulePositionFromChassis = ModulePositions.MODULE_POSITIONS
             .get(module.getModulePosition())
             .rotateBy(getHeadingRotation2d())
             .plus(getPoseMeters().getTranslation());

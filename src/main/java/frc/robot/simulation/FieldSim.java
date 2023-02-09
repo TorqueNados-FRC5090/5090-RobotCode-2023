@@ -9,7 +9,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import java.util.Map;
 import frc.robot.utils.ModuleMap;
 import frc.robot.lists.Constants.DriveConstants;
-import frc.robot.lists.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.ModulePositions;
+import frc.robot.lists.Constants.ModulePositions.ModulePosition;
 import frc.robot.subsystems.Drivetrain;
 
 // 
@@ -37,7 +38,7 @@ public class FieldSim {
 
         for (ModulePosition i : ModulePosition.values()) {
 
-        Translation2d updatedPositions = DriveConstants.kModuleTranslations
+        Translation2d updatedPositions = ModulePositions.MODULE_POSITIONS
             .get(i)
             .rotateBy(m_swerveDrive.getPoseMeters().getRotation())
             .plus(m_swerveDrive.getPoseMeters().getTranslation());

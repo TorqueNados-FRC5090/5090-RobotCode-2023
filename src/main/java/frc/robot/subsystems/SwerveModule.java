@@ -22,7 +22,7 @@ import frc.robot.utils.AngleUtils;
 
 // Import constants
 import frc.robot.lists.Constants.DriveConstants;
-import frc.robot.lists.Constants.DriveConstants.ModulePosition;
+import frc.robot.lists.Constants.ModulePositions.ModulePosition;
 import frc.robot.lists.Constants.ModuleConstants;
 import edu.wpi.first.math.util.Units;
 

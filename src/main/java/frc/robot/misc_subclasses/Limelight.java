@@ -1,9 +1,10 @@
-
 package frc.robot.misc_subclasses;
 
+// Imports
 import edu.wpi.first.networktables.NetworkTableInstance;
-import static frc.robot.lists.Constants.*;
+import static frc.robot.lists.Constants.LimelightConstants.*;
 
+// This class collects the data coming in from a Limelight camera
 public class Limelight {
     // Declare variables
     private double distance;

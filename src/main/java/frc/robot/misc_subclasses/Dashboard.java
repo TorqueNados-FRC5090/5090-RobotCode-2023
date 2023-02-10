@@ -4,7 +4,8 @@ package frc.robot.misc_subclasses;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.wrappers.GenericPID;
 
-// This object is used to handle SmartDashboard outputs
+// This class is used to handle SmartDashboard outputs.
+// The purpose of this class is to centralize code related to the dashboard.
 public class Dashboard {
     // Constructor method
     public Dashboard() {}

@@ -4,84 +4,103 @@ package frc.robot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.Joystick;
 
-// Actuation imports (Motors, Compressors, etc.)
+// Command imports
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 // Camera imports
 import edu.wpi.first.cameraserver.CameraServer;
+import frc.robot.misc_subclasses.Limelight;
 
 // Subsystem imports
 import frc.robot.subsystems.Drivetrain;
 
 // Misc imports
-import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.misc_subclasses.Dashboard;
-import frc.robot.misc_subclasses.Limelight;
+import edu.wpi.first.wpilibj.DataLogManager;
 
-
-
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the TimedRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the build.gradle file in the
- * project.
- */
 public class Robot extends TimedRobot {
-  // Controller ojects
-  private Joystick joystick; 
-  private XboxController xbox;
+    // Commands
+    private Command autonCommand;
+    private RobotContainer robotContainer;
 
-  // Subsystem objects
-  private Drivetrain drivetrain;
-  private Dashboard dashboard;
-  private Limelight limelight;
-  
-  // This function is run when the robot is first started up and should be used
-  // for any initialization code.
-  @Override
-  public void robotInit() {
-    // Initialize variables
-    joystick = new Joystick(0);
-    xbox  = new XboxController(1);
+    // Controller ojects
+    private Joystick joystick; 
+    private XboxController xbox;
 
-    CameraServer.startAutomaticCapture();
-    limelight = new Limelight();
+    // Subsystem objects
+    private Drivetrain drivetrain;
+    private Dashboard dashboard;
+    private Limelight limelight;
 
-    dashboard = new Dashboard();
-  }
+    // This function is run when the robot is first started up and should be used
+    // for any initialization code.
+    @Override
+    public void robotInit() {
+        if (RobotBase.isReal())
+            DataLogManager.start();
 
-  // This function is called once at the start of auton
-  @Override
-  public void autonomousInit() {
+        // Initialize variables
+        joystick = new Joystick(0);
+        xbox  = new XboxController(1);
 
-  }
+        CameraServer.startAutomaticCapture();
+        limelight = new Limelight();
 
-  // This function is called every 20ms during auton
-  @Override
-  public void autonomousPeriodic() { 
+        dashboard = new Dashboard();
+
+        robotContainer = new RobotContainer();
+    }
+
+    // This function is called once at the start of auton
+    @Override
+    public void autonomousInit() {
+        autonCommand = robotContainer.getAutonomousCommand();
+
+        if (autonCommand != null)
+            autonCommand.schedule();
+    }
+
+    // This function is called every 20ms during auton
+    @Override
+    public void autonomousPeriodic() { 
+        
+    }
     
-  }
-  
-  // This function is called once at the start of teleop
-  @Override
-  public void teleopInit() {
+    // This function is called once at the start of teleop
+    @Override
+    public void teleopInit() {
+        // This makes sure that the autonomous command stops when teleop starts
+        if (autonCommand != null)
+            autonCommand.cancel();
+    }
+
+    // This function is called every 20ms during teleop
+    @Override
+    public void teleopPeriodic() {
     
-  }
+    }
 
-  // This function is called every 20ms during teleop
-  @Override
-  public void teleopPeriodic() {
-   
-  }
+    // This function is called every 20ms while the robot is enabled
+    @Override
+    public void robotPeriodic() {    
+        // Update subclass internal values
+        limelight.updateLimelightTracking();
 
-  // This function is called every 20ms while the robot is enabled
-  @Override
-  public void robotPeriodic() {
+        // Update dashboard
+        dashboard.printLimelightData(limelight);
 
-    // Update subclass internal values
-    limelight.updateLimelightTracking();
+        // Runs the Command Scheduler.
+        CommandScheduler.getInstance().run();
+        robotContainer.fieldSim.periodic();
+        robotContainer.periodic();  
+    }
 
-    // Update dashboard
-    dashboard.printLimelightData(limelight);
-  }
+    @Override
+    public void simulationPeriodic() {
+        robotContainer.fieldSim.periodic();
+        robotContainer.simulationPeriodic();
+    }
 }

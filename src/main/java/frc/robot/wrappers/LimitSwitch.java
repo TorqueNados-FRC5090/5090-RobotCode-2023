@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 /** Wraps DigitalInput to represent a laser detector */
 public class LimitSwitch {
-    // Create a digital input for the switch
     private DigitalInput limSwitch;
 
      /** 

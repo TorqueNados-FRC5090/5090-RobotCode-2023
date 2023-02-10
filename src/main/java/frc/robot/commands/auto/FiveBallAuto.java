@@ -33,7 +33,8 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.lists.Constants.DriveConstants;
+import frc.robot.lists.Constants.ModulePositions;
 import frc.robot.subsystems.Drivetrain;
 
 public class FiveBallAuto extends SequentialCommandGroup {
@@ -50,7 +51,7 @@ public class FiveBallAuto extends SequentialCommandGroup {
         new PPSwerveControllerCommand(
             trajectory1,
             swerveDrive::getPoseMeters,
-                    DriveConstants.kSwerveKinematics,
+                    ModulePositions.SWERVE_KINEMATICS,
             swerveDrive.getXPidController(),
             swerveDrive.getYPidController(),
             swerveDrive.getThetaPidController(),
@@ -60,7 +61,7 @@ public class FiveBallAuto extends SequentialCommandGroup {
         new PPSwerveControllerCommand(
             trajectory2,
             swerveDrive::getPoseMeters,
-                    DriveConstants.kSwerveKinematics,
+                    ModulePositions.SWERVE_KINEMATICS,
             swerveDrive.getXPidController(),
             swerveDrive.getYPidController(),
             swerveDrive.getThetaPidController(),
@@ -70,7 +71,7 @@ public class FiveBallAuto extends SequentialCommandGroup {
         new PPSwerveControllerCommand(
             trajectory3,
             swerveDrive::getPoseMeters,
-                    DriveConstants.kSwerveKinematics,
+                    ModulePositions.SWERVE_KINEMATICS,
             swerveDrive.getXPidController(),
             swerveDrive.getYPidController(),
             swerveDrive.getThetaPidController(),
@@ -80,7 +81,7 @@ public class FiveBallAuto extends SequentialCommandGroup {
         new PPSwerveControllerCommand(
             trajectory4,
             swerveDrive::getPoseMeters,
-                    DriveConstants.kSwerveKinematics,
+                    ModulePositions.SWERVE_KINEMATICS,
             swerveDrive.getXPidController(),
             swerveDrive.getYPidController(),
             swerveDrive.getThetaPidController(),

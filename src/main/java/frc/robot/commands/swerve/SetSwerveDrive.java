@@ -5,16 +5,16 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import java.util.function.DoubleSupplier;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.lists.Constants.DriveConstants;
 import frc.robot.subsystems.Drivetrain;
 
 // The purpose of this command is to drive a swerve chassis
 public class SetSwerveDrive extends CommandBase {
     @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
     private final Drivetrain drivetrain;
-    private final SlewRateLimiter slewX = new SlewRateLimiter(DriveConstants.kTranslationSlew);
-    private final SlewRateLimiter slewY = new SlewRateLimiter(DriveConstants.kTranslationSlew);
-    private final SlewRateLimiter slewRot = new SlewRateLimiter(DriveConstants.kRotationSlew);
+    private final SlewRateLimiter slewX = new SlewRateLimiter(DriveConstants.TRANSLATION_SLEW);
+    private final SlewRateLimiter slewY = new SlewRateLimiter(DriveConstants.TRANSLATION_SLEW);
+    private final SlewRateLimiter slewRot = new SlewRateLimiter(DriveConstants.ROTATION_SLEW);
     private final DoubleSupplier throttleInput, strafeInput, rotationInput;
 
     /**
@@ -48,15 +48,15 @@ public class SetSwerveDrive extends CommandBase {
     public void execute() {
         // If throttle input is between -.05 and .05, set it to 0
         double throttle = MathUtil.applyDeadband(Math.abs(throttleInput.getAsDouble()),
-            DriveConstants.kControllerDeadband) * Math.signum(throttleInput.getAsDouble());
+            DriveConstants.TRANSLATION_DEADBAND) * Math.signum(throttleInput.getAsDouble());
 
         // If strafe input is between -.05 and .05, set it to 0
         double strafe = MathUtil.applyDeadband(Math.abs(strafeInput.getAsDouble()),
-            DriveConstants.kControllerDeadband) * Math.signum(strafeInput.getAsDouble());
+            DriveConstants.TRANSLATION_DEADBAND) * Math.signum(strafeInput.getAsDouble());
 
         // If rotation input is between -.1 and .1, set it to 0
         double rotation = MathUtil.applyDeadband(Math.abs(rotationInput.getAsDouble()),
-            DriveConstants.kControllerRotDeadband) * Math.signum(rotationInput.getAsDouble());
+            DriveConstants.ROTATION_DEADBAND) * Math.signum(rotationInput.getAsDouble());
 
         // Square values after deadband while keeping original sign
         throttle = -Math.signum(throttle) * Math.pow(throttle, 2);

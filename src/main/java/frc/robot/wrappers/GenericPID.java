@@ -118,13 +118,15 @@ public class GenericPID {
     public void setMin(double min) { this.min = min*ratio; setSetpoint(this.setpoint); }
     public void setMax(double max) { this.max = max*ratio; setSetpoint(this.setpoint); }
     /** Set the min and max input values */
-    public void setInputRange(double min, double max) { getMin(); getMax(); setSetpoint(this.setpoint); }
+    public void setInputRange(double min, double max) {setMin(min); setMax(max); setSetpoint(this.setpoint); }
     /** Set the min and max output speed [-1,1] */
     public void setOutputRange(double min, double max) { controller.setOutputRange(min, max); }
     
     /** Sets the setpoint, and forces it within user-set bounds [min,max] */
     public void setSetpoint(double set) {
         set *= ratio;
+
+        System.out.println("set: " + set + " | min: " +  min + " | max: " + max);
 
         this.setpoint = set < min ? min : 
                       ( set > max ? max : set );

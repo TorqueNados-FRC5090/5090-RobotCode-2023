@@ -20,6 +20,7 @@ import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
 
 // Misc imports
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.misc_subclasses.Dashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -98,6 +99,30 @@ public class Robot extends TimedRobot {
 
         else if (operatorController.getRightBumperPressed())
             claw.close();
+
+        // Pressing Y makes the arm go to the preset of the top position
+        if (operatorController.getYButtonPressed())
+            arm.topPosition();
+
+        // Pressing B makes the arm go to the preset of the middle position
+        if (operatorController.getBButtonPressed())
+            arm.middlePosition();
+
+        // Pressing A makes the arm go to the preset of the bottom position
+        if (operatorController.getAButtonPressed())
+            arm.bottomPosition();
+
+        // Pressing Start makes the arm go to the preset of the zero position
+        if (operatorController.getStartButtonPressed())
+            arm.zeroPosition();
+
+        // Pressing X makes the arm go to the preset of the balance position
+        if (operatorController.getXButtonPressed())
+            arm.balance();
+
+        // Pressing Back makes the arm go to the preset of the delitray position
+        if (operatorController.getBackButtonPressed())
+            arm.delitrayPosition();
     }
 
     // This function is called once at the start of a test
@@ -137,6 +162,10 @@ public class Robot extends TimedRobot {
         // Pressing B resets the arm to where it was when the robot was powered on
         if (operatorController.getBButtonPressed())
             arm.zeroPosition();
+
+        // Test
+        if (operatorController.getAButtonPressed())
+            arm.testPosition();
 
         // The dpad's previous value is updated
         prev = curr; 

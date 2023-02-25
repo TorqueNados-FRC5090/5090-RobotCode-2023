@@ -30,7 +30,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new WaitCommand(0);
+        return new DriveCommand(drivetrain, () -> 0, () -> .5, () -> 0);
     }
 
     /** @return The robot's drivetrain */

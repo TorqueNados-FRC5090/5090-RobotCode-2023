@@ -33,13 +33,14 @@ public class Arm {
 
         rotation = new CANSparkMax(rotationId, MotorType.kBrushless);
         rotation.restoreFactoryDefaults();
-        rotationPID = new GenericPID(rotation,ControlType.kPosition , .5);
+        rotationPID = new GenericPID(rotation,ControlType.kPosition , .025, .000005, 0);
         rotationPID.setRatio(ROTATION_RATIO);
         rotationPID.setInputRange(0,90);        
 
         telescope = new CANSparkMax(telescopeId, MotorType.kBrushless);
         telescope.restoreFactoryDefaults();
-        telescopePID = new GenericPID(telescope, ControlType.kPosition, .5);
+        telescopePID = new GenericPID(telescope, ControlType.kPosition, .025);
+        telescopePID.setRatio(TELESCOPE_RATIO);
         telescopePID.setInputRange(0,12); 
         
         telescopeFollower = new CANSparkMax(telescopeFollowerId, MotorType.kBrushless);
@@ -49,7 +50,8 @@ public class Arm {
         slider = new CANSparkMax(sliderId, MotorType.kBrushless);
         slider.restoreFactoryDefaults();
         slider.setInverted(true);
-        sliderPID = new GenericPID(slider, ControlType.kPosition, .25);
+        sliderPID = new GenericPID(slider, ControlType.kPosition, .025, .000005, .0000005);
+        sliderPID.setRatio(SLIDER_RATIO);
         sliderPID.setInputRange(0,12); 
 
     }
@@ -90,27 +92,45 @@ public class Arm {
     public void topPosition(){
         rotationGoTo(45);
         telescopeGoTo(36);
-        sliderGoTo(24);
+        //sliderGoTo(24);
     }
 
     /** Sets arm to reach middle goal */
     public void middlePosition(){
         rotationGoTo(25);
         telescopeGoTo(18);
-        sliderGoTo(12);    
+        //sliderGoTo(12);    
     }
 
     /** Sets arm to reach bottom goal */
     public void bottomPosition(){
         rotationGoTo(-5);
         telescopeGoTo(0);
-        sliderGoTo(12);   
+        //sliderGoTo(12);   
     }
 
     /** Moves the arm to the most balanced postition */
     public void balance(){
         rotationGoTo(-5);
         telescopeGoTo(0);
-        sliderGoTo(12);   
+        //sliderGoTo(12);   
+    }
+
+    public void delitrayPosition(){
+        rotationGoTo(4);
+        telescopeGoTo(3);
+        //sliderGoTo(5);
+    }
+
+    public void floorPosition(){
+        rotationGoTo(7);
+        telescopeGoTo(9);
+        //sliderGoTo(10);
+    }   
+
+    public void testPosition(){
+        rotationGoTo(20);
+        telescopeGoTo(0);
+        sliderGoTo(6);
     }
 }

@@ -8,6 +8,8 @@ import static frc.robot.Constants.SwerveConstants.ModuleConstants.*;
 import static frc.robot.Constants.SwerveConstants.kMaxSpeedMetersPerSecond;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.*;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -26,6 +28,7 @@ public class SwerveModule extends SubsystemBase {
     private SparkMaxPIDController m_driveController;
     private RelativeEncoder m_driveEncoder;
     private RelativeEncoder m_turnEncoder;
+    private PIDController turnController = new PIDController(.007, .00175, .0000625);
     private CANCoder m_angleEncoder;
     private double m_angleOffset;
     private double m_lastAngle;
@@ -147,20 +150,14 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void positionTurn(double angle) {
-        double currPos = m_turnEncoder.getPosition();
-        double currDiff = Math.abs(currPos - angle);
-        double power = 0.0666694864847 * Math.log(.5 * currDiff);
-        if(power < 0)
-            power = 0;
+        double turnAngleError = Math.abs(angle - m_turnEncoder.getPosition());
 
-        double outputVoltage = -Math.signum(currPos - angle) * power * RobotController.getBatteryVoltage();
+        double pidOut = turnController.calculate(m_turnEncoder.getPosition(), angle);
+        // if robot is not moving, stop the turn motor oscillating
+        if (turnAngleError < .5 && Math.abs(state.speedMetersPerSecond) <= 0.03)
+            pidOut = 0;
 
-        outputVoltage = outputVoltage > 3 ? 3 : outputVoltage < -3 ? -3 : outputVoltage; 
-
-        if(this.getModuleNumber() == 3)
-            System.out.println("currPos: " + Math.round(currPos) + " | targetAngle " + Math.round(angle) + " | currDiff: " + Math.round(currDiff) + " | power: " + power + " | output: " + outputVoltage);
-
-        m_turnMotor.setVoltage(outputVoltage);
+        m_turnMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
     }
 
     public SwerveModuleState getState() {

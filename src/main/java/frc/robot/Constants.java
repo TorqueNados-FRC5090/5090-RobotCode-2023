@@ -21,6 +21,11 @@ public final class Constants {
         public static final int OPERATOR_PORT = 1;
     }
 
+    public static final class DIOPorts {
+        public static final int CLAW_LASER_PORT = 0;
+
+    }
+
     /** IDs used by the drivetrain.
         3X for turning, 4X for driving, 5X for abs encoders. */
     public static final class SwerveIDs {

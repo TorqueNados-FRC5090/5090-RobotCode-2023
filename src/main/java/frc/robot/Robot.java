@@ -11,10 +11,12 @@ import frc.robot.misc_subclasses.Limelight;
 
 // Subsystem and subclass imports
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 
 // Import Constants
 import static frc.robot.Constants.ArmIDs.*;
 import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
+import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
 
 // Misc imports
 import edu.wpi.first.wpilibj.XboxController;
@@ -30,6 +32,7 @@ public class Robot extends TimedRobot {
 
     // Subsystem and subclass objects
     private Arm arm;
+    private Claw claw;
     private Dashboard dashboard;
     private Limelight limelight;
     
@@ -54,6 +57,7 @@ public class Robot extends TimedRobot {
         robotContainer = new RobotContainer();
         operatorController = new XboxController(OPERATOR_PORT);
         arm = new Arm(ROTATION_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
+        claw = new Claw(CLAW_LASER_PORT);
         limelight = new Limelight();
         dashboard = new Dashboard();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
@@ -88,6 +92,12 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         robotContainer.teleopPeriodic();
+
+        if (operatorController.getLeftBumperPressed())
+            claw.open();
+
+        else if (operatorController.getRightBumperPressed())
+            claw.close();
     }
 
     // This function is called once at the start of a test

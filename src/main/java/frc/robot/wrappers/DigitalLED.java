@@ -2,11 +2,8 @@ package frc.robot.wrappers;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 
-/** 
- * This class wraps over a {@link DigitalOutput} that represents an LED in the real world.
- */ 
+/** Wraps {@link DigitalInput} to represent a laser detector. */ 
 public class DigitalLED {
-    
     private DigitalOutput LED;
 
      /** 
@@ -28,10 +25,10 @@ public class DigitalLED {
     public void off(){ LED.set(false);}
     public void on(){ LED.set(true);}
 
-    /**@param set If set to true, the LED's will be turned on*/
+    /** @param set Whether the led should be turned on */
     public void set(boolean set){ LED.set(set);}
 
-    /** This function sets the light to the opposite of its current state */
+    /** This sets the LED to the opposite of its current state */
     public void toggle(){
         set(!get());
     }

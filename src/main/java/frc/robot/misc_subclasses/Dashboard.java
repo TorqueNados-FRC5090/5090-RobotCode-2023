@@ -2,6 +2,7 @@ package frc.robot.misc_subclasses;
 
 // Imports
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.wrappers.GenericPID;
 
 // This class is used to handle SmartDashboard outputs.
@@ -10,14 +11,22 @@ public class Dashboard {
     // Constructor method
     public Dashboard() {}
 
-    // Prints the current position of a target relative to limelight
+    /** Prints the current position of a target relative to limelight 
+     *  @param limelight The limelight object to get data from */
     public void printLimelightData(Limelight limelight) {
         SmartDashboard.putNumber("Distance from Target", limelight.getDistance());
         SmartDashboard.putNumber("Rotational Angle to Target", limelight.getRotationAngle());
     }
 
-    // Prints relevant data from a PID controller. If a value is manually 
-    // input into the dashboard, the pid setpoint will update accordingly
+    /** Prints the heading of the robot and whether it is in field centric mode or not 
+     *  @param drivetrain The robot's drivetrain */
+    public void printBasicDrivetrainData(Drivetrain drivetrain) {
+        SmartDashboard.putBoolean("Field Centric", drivetrain.isFieldCentric());
+        SmartDashboard.putNumber("Robot Heading", drivetrain.getHeadingDegrees());
+    }
+
+    /** Prints relevant data from a PID controller. If a value is manually 
+     *  input into the dashboard, the pid setpoint will update accordingly */
     public void PIDtoDashboard(GenericPID pid, String name) {
         // Get the setpoint from the dashboard
         double setpointD = SmartDashboard.getNumber(name + " Setpoint", pid.getSetpoint());

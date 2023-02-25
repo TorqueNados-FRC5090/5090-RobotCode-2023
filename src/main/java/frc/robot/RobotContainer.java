@@ -1,73 +1,45 @@
 package frc.robot;
 
-// Command Imports
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.auto.DriveForward;
-import frc.robot.commands.auto.FiveBallAuto;
-import frc.robot.commands.swerve.SetSwerveDrive;
-import frc.robot.commands.ToggleFieldOriented;
-
-// Other imports
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.simulation.FieldSim;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Drivetrain;
-import static frc.robot.lists.ID_Numbers.ControllerPorts.*;
 
+import static frc.robot.Constants.ControllerPorts.DRIVER_PORT;
+
+/** This is where the drivetrain will be controlled */
 public class RobotContainer {
-    // The robot's subsystems
-    final Drivetrain robotDrive = new Drivetrain();
+    private final Drivetrain drivetrain = new Drivetrain();
+    private XboxController driver = new XboxController(DRIVER_PORT);
 
-    public final FieldSim fieldSim = new FieldSim(robotDrive);
-
-    private final SendableChooser<Command> autoChooser = new SendableChooser<Command>();
-
-    // The driver's controller
-
-    static XboxController driver = new XboxController(DRIVER_PORT);
-
+    /** Constructs a RobotContainer */
     public RobotContainer() {
-        SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
-
-        fieldSim.initSim();
-        initializeAutoChooser();
-            // The left stick controls translation of the robot.
-            // Turning is controlled by the X axis of the right stick.
-            robotDrive.setDefaultCommand(
-            new SetSwerveDrive(
-            robotDrive,
-            () -> driver.getLeftY(),
-            () -> driver.getLeftX(),
-            () -> driver.getRightX()));
-
-            JoystickButton button_8 = new JoystickButton(driver, 8);
-            button_8.whenPressed(new ToggleFieldOriented(robotDrive));
+        // If the drivetrain is not busy, drive using joysticks
+        drivetrain.setDefaultCommand(
+            new DriveCommand(drivetrain, 
+                driver.getLeftX(), 
+                driver.getLeftY(),
+                driver.getRightX())
+        );
     }
 
-    private void initializeAutoChooser() {
-        autoChooser.setDefaultOption("Do Nothing", new WaitCommand(0));
-        autoChooser.addOption("Drive Forward", new DriveForward(robotDrive));
-        autoChooser.addOption("5 Ball Auto", new FiveBallAuto(robotDrive));
-
-        SmartDashboard.putData("Auto Selector", autoChooser);
-    }
-
-    public void simulationPeriodic() {
-        fieldSim.periodic();
-        periodic();
-    }
-
-    public void periodic() {
-        fieldSim.periodic();
-    }
-
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
     public Command getAutonomousCommand() {
-        // An ExampleCommand will run in autonomous
-        return autoChooser.getSelected();
+        return new WaitCommand(0);
     }
 
+    /** @return The robot's drivetrain */
+    public Drivetrain getDrivetrain() { return drivetrain; }
+
+    // For running TimedRobot style code in RobotContainer
+    /** Should always be called from Robot.teleopPeriodic() */
+    public void teleopPeriodic() {
+        if(driver.getStartButtonPressed())
+            drivetrain.toggleFieldCentric();
+    }
 }

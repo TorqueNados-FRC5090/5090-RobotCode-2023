@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import java.util.function.DoubleSupplier;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -11,9 +12,9 @@ import static frc.robot.Constants.DriveConstants.*;
 public class DriveCommand extends CommandBase {
     // Declare variables that will be initialized by the constructor
     private final Drivetrain drivetrain;
-    private final double inputY;
-    private final double inputX;
-    private final double inputRot;
+    private final DoubleSupplier inputY;
+    private final DoubleSupplier inputX;
+    private final DoubleSupplier inputRot;
 
     // Declare and initialize the limiters used to slew instructions
     private final SlewRateLimiter slewX = new SlewRateLimiter(TRANSLATION_SLEW);
@@ -28,7 +29,7 @@ public class DriveCommand extends CommandBase {
      * @param translationInputY The forward/back translation instruction
      * @param rotation The rotational instruction
     */
-    public DriveCommand(Drivetrain drivetrain, double translationInputX, double translationInputY, double rotationInput) {
+    public DriveCommand(Drivetrain drivetrain, DoubleSupplier translationInputX, DoubleSupplier translationInputY, DoubleSupplier rotationInput) {
 
         // Initialize internal variables with values passed through params
         this.drivetrain = drivetrain;
@@ -48,14 +49,14 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute() {
         // If a translation input is between -.05 and .05, set it to 0
-        double deadbandedX = MathUtil.applyDeadband(Math.abs(inputX),
-            TRANSLATION_DEADBAND) * Math.signum(inputX);
-        double deadbandedY = MathUtil.applyDeadband(Math.abs(inputY),
-            TRANSLATION_DEADBAND) * Math.signum(inputY);
+        double deadbandedX = MathUtil.applyDeadband(Math.abs(inputX.getAsDouble()),
+            TRANSLATION_DEADBAND) * Math.signum(inputX.getAsDouble());
+        double deadbandedY = MathUtil.applyDeadband(Math.abs(inputY.getAsDouble()),
+            TRANSLATION_DEADBAND) * Math.signum(inputY.getAsDouble());
 
         // If the rotation input is between -.1 and .1, set it to 0
-        double deadbandedRot = MathUtil.applyDeadband(Math.abs(inputRot),
-            ROTATION_DEADBAND) * Math.signum(inputRot);
+        double deadbandedRot = MathUtil.applyDeadband(Math.abs(inputRot.getAsDouble()),
+            ROTATION_DEADBAND) * Math.signum(inputRot.getAsDouble());
 
         // Square values after deadband while keeping original sign
         deadbandedX = -Math.signum(deadbandedX) * Math.pow(deadbandedX, 2);

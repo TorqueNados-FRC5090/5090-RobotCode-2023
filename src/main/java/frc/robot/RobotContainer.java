@@ -18,9 +18,9 @@ public class RobotContainer {
         // If the drivetrain is not busy, drive using joysticks
         drivetrain.setDefaultCommand(
             new DriveCommand(drivetrain, 
-                driver.getLeftX(), 
-                driver.getLeftY(),
-                driver.getRightX())
+            () -> driver.getLeftX(), 
+            () -> driver.getLeftY(),
+            () -> driver.getRightX())
         );
     }
 

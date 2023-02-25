@@ -141,7 +141,7 @@ public class Drivetrain extends SubsystemBase {
 
 
     /** @return The current direction the robot is facing in degrees */
-    public double getHeadingDegrees() { return Math.IEEEremainder(gyro.getYaw(), 360); }
+    public double getHeadingDegrees() { return -Math.IEEEremainder(gyro.getAngle(), 360); }
     /** @return The current direction the robot is facing as a {@link Rotation2d} object */
     public Rotation2d getHeadingRotation2d() { return Rotation2d.fromDegrees(getHeadingDegrees()); }
     /** @return The position in meters and direction of the robot in degrees as a {@link Pose2d} object */

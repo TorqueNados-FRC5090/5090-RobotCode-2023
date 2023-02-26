@@ -79,6 +79,6 @@ public class DriveCommand extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false; // Command never ends on its own
+        return false; // Has no end condition
     }
 }

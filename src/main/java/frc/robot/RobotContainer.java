@@ -2,7 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.LockDrivetrain;
 import frc.robot.subsystems.Drivetrain;
 
 import static frc.robot.Constants.ControllerPorts.DRIVER_PORT;
@@ -21,6 +23,9 @@ public class RobotContainer {
             () -> driver.getLeftY(),
             () -> driver.getRightX())
         );
+
+        Trigger lockBtn = new Trigger(() -> driver.getXButton());
+        lockBtn.whileTrue(new LockDrivetrain(drivetrain));
     }
 
     /**

@@ -62,7 +62,7 @@ public class SwerveModule extends SubsystemBase {
         m_angleOffset = turningEncoderOffset;
 
         m_driveMotor.restoreFactoryDefaults();
-        m_driveMotor.setSmartCurrentLimit(20);
+        m_driveMotor.setSmartCurrentLimit(40);
         m_driveMotor.getPIDController().setFF(0.0);
         m_driveMotor.getPIDController().setP(0.2);
         m_driveMotor.getPIDController().setI(0.0);

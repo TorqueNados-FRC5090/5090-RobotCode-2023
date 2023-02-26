@@ -144,6 +144,8 @@ public class Drivetrain extends SubsystemBase {
     public double getHeadingDegrees() { return -Math.IEEEremainder(gyro.getAngle(), 360); }
     /** @return The current direction the robot is facing as a {@link Rotation2d} object */
     public Rotation2d getHeadingRotation2d() { return Rotation2d.fromDegrees(getHeadingDegrees()); }
+    /** Reset the heading of the robot, effectively changing the orientation of the field */
+    public void resetHeading() { gyro.reset(); }
     /** @return The position in meters and direction of the robot in degrees as a {@link Pose2d} object */
     public Pose2d getPoseMeters() { return odometry.getPoseMeters(); }
     /** @param moduleNumber The index of the module 

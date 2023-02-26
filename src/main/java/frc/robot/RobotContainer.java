@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Drivetrain;
 
@@ -41,5 +40,8 @@ public class RobotContainer {
     public void teleopPeriodic() {
         if(driver.getStartButtonPressed())
             drivetrain.toggleFieldCentric();
+            
+        if(driver.getBackButtonPressed())
+            drivetrain.resetHeading();
     }
 }

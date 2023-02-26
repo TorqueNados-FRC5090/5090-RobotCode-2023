@@ -20,7 +20,6 @@ import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
 
 // Misc imports
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.misc_subclasses.Dashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;

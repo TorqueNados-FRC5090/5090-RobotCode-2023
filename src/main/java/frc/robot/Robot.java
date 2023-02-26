@@ -20,6 +20,7 @@ import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
 
 // Misc imports
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants.ArmConstants.ArmState;
 import frc.robot.misc_subclasses.Dashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -45,6 +46,7 @@ public class Robot extends TimedRobot {
     private double sliderPos;
     private double telescopePos;
     private int prev;
+    private int i;
 
     // This function is run when the robot is first started up and should be used
     // for any initialization code.
@@ -95,35 +97,51 @@ public class Robot extends TimedRobot {
 
         if (operatorController.getLeftBumperPressed())
             claw.open();
-
         else if (operatorController.getRightBumperPressed())
             claw.close();
-
+/*
         // Pressing Y makes the arm go to the preset of the top position
         if (operatorController.getYButtonPressed())
-            arm.topPosition();
+            arm.goTo(ArmState.DROPOFF_HIGH);
 
         // Pressing B makes the arm go to the preset of the middle position
         if (operatorController.getBButtonPressed())
-            arm.middlePosition();
+            arm.goTo(ArmState.DROPOFF_MED);
 
         // Pressing A makes the arm go to the preset of the bottom position
         if (operatorController.getAButtonPressed())
-            arm.bottomPosition();
+            arm.goTo(ArmState.DROPOFF_LOW);
 
         // Pressing Start makes the arm go to the preset of the zero position
         if (operatorController.getStartButtonPressed())
-            arm.zeroPosition();
+            arm.goTo(ArmState.ZERO);
 
         // Pressing X makes the arm go to the preset of the balance position
         if (operatorController.getXButtonPressed())
-            arm.balance();
+            arm.goTo(ArmState.BALANCE);
 
         // Pressing Back makes the arm go to the preset of the delitray position
         if (operatorController.getBackButtonPressed())
-            arm.delitrayPosition();
+            arm.goTo(ArmState.PICKUP_HUMAN);
+*/
     }
 
+    // This function is called every 20ms while the robot is enabled
+    @Override
+    public void robotPeriodic() {    
+        // Print data to the dashboard
+        dashboard.PIDtoDashboard(arm.getRotationPid(), "rotation");
+        dashboard.PIDtoDashboard(arm.getTelescopePid(), "telescope");
+        dashboard.PIDtoDashboard(arm.getSliderPid(), "slider");
+        dashboard.printLimelightData(limelight);
+        dashboard.printBasicDrivetrainData(robotContainer.getDrivetrain());
+
+        // Run any functions that always need to be running
+        CommandScheduler.getInstance().run();
+        limelight.updateLimelightTracking();
+    }
+
+    //----------- test functionality below -----------
     // This function is called once at the start of a test
     @Override
     public void testInit() {
@@ -131,6 +149,7 @@ public class Robot extends TimedRobot {
         rotationPos = 0;
         telescopePos = 0;
         sliderPos = 0;
+        i = 0;
         prev = -1;
     }
 
@@ -147,10 +166,14 @@ public class Robot extends TimedRobot {
             arm.telescopeGoTo(++telescopePos);
 
         // Arm's slider is controlled by left and right dpad
-        if (curr == 270 && curr != prev)
-            arm.sliderGoTo(--sliderPos);
-        else if (curr == 90 && curr != prev)
-            arm.sliderGoTo(++sliderPos);
+        if (curr == 270 && curr != prev) {
+            sliderPos -= .5;
+            arm.sliderGoTo(sliderPos);
+        }
+        else if (curr == 90 && curr != prev){
+            sliderPos += .5;
+            arm.sliderGoTo(sliderPos);
+        }
         
         // Arm's rotation is controlled by up and down dpad
         if (curr == 180 && curr != prev)
@@ -162,26 +185,29 @@ public class Robot extends TimedRobot {
         if (operatorController.getBButtonPressed())
             arm.zeroPosition();
 
-        // Test
-        if (operatorController.getAButtonPressed())
-            arm.testPosition();
+        // Testing configuration button
+        if (operatorController.getAButtonPressed()) {
+            //arm.rotationGoTo(80);
+            //rotationPos = 80;
+            arm.pickupFloor();
+        }
 
-        // The dpad's previous value is updated
+        // Control the claw in test mode
+        if (operatorController.getStartButtonPressed())
+            claw.open();
+        else if (operatorController.getBackButtonPressed())
+            claw.close();
+
+        // Print the arm positions every 2 sec
+        if(i == 100) {
+            System.out.println( "Rotation Position : " + arm.getRotationPid().getRatioPos());
+            System.out.println( "Telescope Position : " + arm.getTelescopePid().getRatioPos());
+            System.out.println( "Slider Position : " + arm.getSliderPid().getRatioPos());
+            i = 0;
+        }
+        i++;
+        
+        // The dpad's previous value is updated for debounce
         prev = curr; 
-    }
-
-    // This function is called every 20ms while the robot is enabled
-    @Override
-    public void robotPeriodic() {    
-        // Print data to the dashboard
-        dashboard.PIDtoDashboard(arm.getRotationPid(), "rotation");
-        dashboard.PIDtoDashboard(arm.getTelescopePid(), "telescope");
-        dashboard.PIDtoDashboard(arm.getSliderPid(), "slider");
-        dashboard.printLimelightData(limelight);
-        dashboard.printBasicDrivetrainData(robotContainer.getDrivetrain());
-
-        // Run any functions that always need to be running
-        CommandScheduler.getInstance().run();
-        limelight.updateLimelightTracking();
     }
 }

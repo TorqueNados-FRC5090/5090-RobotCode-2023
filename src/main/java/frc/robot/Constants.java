@@ -65,6 +65,18 @@ public final class Constants {
         public static final double SLIDER_RATIO = 4.33650762;
         /** Desired movement in degrees * ROTATION_RATIO = required revolutions of the motor */
         public static final double ROTATION_RATIO = .277777777;
+
+        /** Enum representing the preset arm positions */
+        public enum ArmState {
+            ZERO,           // PICKUP_FLOOR, DROPOFF_LOW
+            BALANCE,        // PICKUP_FLOOR, DROPOFF_LOW
+            INTERMEDIATE,
+            PICKUP_FLOOR,   // ZERO, BALANCE
+            PICKUP_HUMAN,
+            DROPOFF_LOW,    // ZERO, BALANCE
+            DROPOFF_MED,
+            DROPOFF_HIGH
+        }
     }
 
     /** Constants used by the limelight */
@@ -165,10 +177,6 @@ public final class Constants {
                 DRIVE_REVS_TO_M / 60.0;
             public static final double kTurnRotationsToDegrees =
                 360.0 / TURN_RATIO;
-
-            public static final double ksDriveVoltSecondsPerMeter = 0.667 / 12;
-            public static final double kvDriveVoltSecondsSquaredPerMeter = 2.44 / 12;
-            public static final double kaDriveVoltSecondsSquaredPerMeter = 0.27 / 12;
         }
     
         /** Enum representing the four possible positions a module can occupy */

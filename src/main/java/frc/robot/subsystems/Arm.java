@@ -20,6 +20,8 @@ public class Arm {
     private GenericPID rotationPID;
     private GenericPID telescopePID;
     private GenericPID sliderPID;
+
+    private ArmState currentState = ArmState.ZERO;
     
     /**
      * Constructs Arm subsystem
@@ -33,15 +35,16 @@ public class Arm {
 
         rotation = new CANSparkMax(rotationId, MotorType.kBrushless);
         rotation.restoreFactoryDefaults();
-        rotationPID = new GenericPID(rotation,ControlType.kPosition , .025, .000005, 0);
+        rotationPID = new GenericPID(rotation,ControlType.kPosition , .025);
+        //rotationPID.setFeedForward(.1);
         rotationPID.setRatio(ROTATION_RATIO);
-        rotationPID.setInputRange(0,90);        
+        //rotationPID.setInputRange(0,80);        
 
         telescope = new CANSparkMax(telescopeId, MotorType.kBrushless);
         telescope.restoreFactoryDefaults();
         telescopePID = new GenericPID(telescope, ControlType.kPosition, .025);
         telescopePID.setRatio(TELESCOPE_RATIO);
-        telescopePID.setInputRange(0,12); 
+        telescopePID.setInputRange(0,17); 
         
         telescopeFollower = new CANSparkMax(telescopeFollowerId, MotorType.kBrushless);
         telescopeFollower.restoreFactoryDefaults();
@@ -52,7 +55,7 @@ public class Arm {
         slider.setInverted(true);
         sliderPID = new GenericPID(slider, ControlType.kPosition, .025, .000005, .0000005);
         sliderPID.setRatio(SLIDER_RATIO);
-        sliderPID.setInputRange(0,12); 
+        sliderPID.setInputRange(0,14); 
 
     }
 
@@ -76,10 +79,42 @@ public class Arm {
     }
     /** Slides arm to a specific position on the chassis
      *  @param target The target position in inches */
-     public void sliderGoTo(double target){
+    public void sliderGoTo(double target){
         sliderPID.activate(target);
-     }
+    }
 
+    /**  */
+    public void goTo(ArmState preset) {
+        preset = changeState(preset);
+        currentState = preset;
+
+        switch(preset) {
+            case ZERO:
+                zeroPosition();
+                break;
+            case BALANCE:
+                balancePosition();
+                break;
+            case INTERMEDIATE:
+                intermediatePosition();
+                break;
+            case PICKUP_FLOOR:
+                pickupFloor();
+                break;
+            case PICKUP_HUMAN:
+                pickupHuman();
+                break;
+            case DROPOFF_LOW:
+                dropoffLow();
+                break;
+            case DROPOFF_MED:
+                dropoffMed();
+                break;
+            case DROPOFF_HIGH:
+                dropoffHigh();
+                break;
+        }
+    }
 
     /** Sets arm to initial position */
     public void zeroPosition(){
@@ -88,49 +123,60 @@ public class Arm {
         sliderGoTo(0);
     }
 
-    /** Sets arm to reach top goal */
-    public void topPosition(){
-        rotationGoTo(45);
-        telescopeGoTo(36);
-        //sliderGoTo(24);
+    /** Moves the arm to the most balanced postition */
+    public void balancePosition(){
+          
     }
 
-    /** Sets arm to reach middle goal */
-    public void middlePosition(){
+    public void intermediatePosition() {
+
+    }
+
+    public void pickupHuman(){
+       
+    }
+
+    public void pickupFloor(){
         rotationGoTo(25);
-        telescopeGoTo(18);
-        //sliderGoTo(12);    
+        telescopeGoTo(15);
+        sliderGoTo(2);
     }
 
     /** Sets arm to reach bottom goal */
-    public void bottomPosition(){
-        rotationGoTo(-5);
-        telescopeGoTo(0);
-        //sliderGoTo(12);   
+    public void dropoffLow(){
+        
     }
 
-    /** Moves the arm to the most balanced postition */
-    public void balance(){
-        rotationGoTo(-5);
-        telescopeGoTo(0);
-        //sliderGoTo(12);   
+    /** Sets arm to reach middle goal */
+    public void dropoffMed(){
+        rotationGoTo(90);
+        telescopeGoTo(8);
+        sliderGoTo(8.5);    
     }
 
-    public void delitrayPosition(){
-        rotationGoTo(4);
-        telescopeGoTo(3);
-        //sliderGoTo(5);
+    /** Sets arm to reach top goal */
+    public void dropoffHigh(){
+       
     }
 
-    public void floorPosition(){
-        rotationGoTo(7);
-        telescopeGoTo(9);
-        //sliderGoTo(10);
-    }   
+    public void testPosition(double rotation, double tele, double slider){
+        rotationGoTo(rotation);
+        telescopeGoTo(tele);
+    }
 
-    public void testPosition(){
-        rotationGoTo(20);
-        telescopeGoTo(0);
-        sliderGoTo(6);
+    private ArmState changeState(ArmState targetState){
+        return willConflict(targetState)
+            ? ArmState.INTERMEDIATE : targetState;
+    }
+
+    private boolean willConflict(ArmState targetState) {
+        if(currentState == ArmState.ZERO || currentState == ArmState.BALANCE
+        && targetState == ArmState.DROPOFF_LOW || targetState == ArmState.PICKUP_FLOOR)
+            return true;
+        else if(targetState == ArmState.ZERO || targetState == ArmState.BALANCE
+        && currentState == ArmState.DROPOFF_LOW || currentState == ArmState.PICKUP_FLOOR)    
+            return true;
+        else
+            return false;
     }
 }

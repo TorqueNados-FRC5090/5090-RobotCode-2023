@@ -2,11 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import java.util.function.DoubleSupplier;
-
-import static frc.robot.Constants.DriveConstants.*;
 
 /** Drives the robot */
 public class LockDrivetrain extends CommandBase {
@@ -14,12 +9,9 @@ public class LockDrivetrain extends CommandBase {
     private final Drivetrain drivetrain;
 
     /** 
-     * Constructs a DriveCommand
+     * Constructs a LockDrivetrain command
      *  
      * @param drivetrain The robot's drivetrain
-     * @param translationInputX The left/right translation instruction
-     * @param translationInputY The forward/back translation instruction
-     * @param rotation The rotational instruction
     */
     public LockDrivetrain(Drivetrain drivetrain) {
 

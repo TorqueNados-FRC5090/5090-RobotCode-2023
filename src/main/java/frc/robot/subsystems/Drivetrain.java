@@ -1,64 +1,65 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import com.ctre.phoenix.sensors.CANCoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
+// Math Imports
 //import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.SwerveConstants;
-import frc.robot.Constants.SwerveIDs;
-import frc.robot.Constants.SwerveInversions;
-import frc.robot.Constants.SwerveModuleOffsets;
+import java.util.Map;
+import java.util.HashMap;
 
+// Gyro imports
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-import frc.robot.Constants.SwerveConstants.ModulePosition;
-import java.util.HashMap;
-import java.util.Map;
 
+// Import constants
+import frc.robot.Constants.SwerveConstants.ModulePosition;
+import frc.robot.Constants.SwerveConstants;
+import static frc.robot.Constants.SwerveIDs.*;
+import static frc.robot.Constants.SwerveInversions.*;
+import static frc.robot.Constants.SwerveModuleOffsets.*;
 import static frc.robot.Constants.SwerveConstants.*;
 
-
+/** This class represents the drivetrain on the robot */
 public class Drivetrain extends SubsystemBase {
 
-    private SwerveModule frontLeftModule = new SwerveModule( 0,
-        new CANSparkMax(SwerveIDs.FL_DRIVE_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANSparkMax(SwerveIDs.FL_TURN_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANCoder(SwerveIDs.FL_ENCODER_ID),
-        SwerveInversions.INVERT_FL_DRIVE,
-        SwerveInversions.INVERT_FL_TURN,
-        SwerveModuleOffsets.FL_OFFSET);
+    // Construct each swerve module
+    /** The front left (FL) {@link SwerveModule}. Module number is 0 */
+    private SwerveModule frontLeftModule = new SwerveModule(0,
+        FL_DRIVE_ID,
+        FL_TURN_ID,
+        FL_ENCODER_ID,
+        INVERT_FL_DRIVE,
+        INVERT_FL_TURN,
+        FL_OFFSET);
 
-    private SwerveModule frontRightModule = new SwerveModule( 1,
-        new CANSparkMax(SwerveIDs.FR_DRIVE_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANSparkMax(SwerveIDs.FR_TURN_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANCoder(SwerveIDs.FR_ENCODER_ID),
-        SwerveInversions.INVERT_FR_DRIVE,
-        SwerveInversions.INVERT_FR_TURN,
-        SwerveModuleOffsets.FR_OFFSET);
+    /** The front right (FR) {@link SwerveModule}. Module number is 1 */
+    private SwerveModule frontRightModule = new SwerveModule(1,
+        FR_DRIVE_ID,
+        FR_TURN_ID,
+        FR_ENCODER_ID,
+        INVERT_FR_DRIVE,
+        INVERT_FR_TURN,
+        FR_OFFSET);
 
-    private SwerveModule rearLeftModule = new SwerveModule( 2,
-        new CANSparkMax(SwerveIDs.RL_DRIVE_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANSparkMax(SwerveIDs.RL_TURN_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANCoder(SwerveIDs.RL_ENCODER_ID),
-        SwerveInversions.INVERT_RL_DRIVE,
-        SwerveInversions.INVERT_RL_TURN,
-        SwerveModuleOffsets.RL_OFFSET);
+    /** The rear left (RL) {@link SwerveModule}. Module number is 2 */
+    private SwerveModule rearLeftModule = new SwerveModule(2,
+        RL_DRIVE_ID,
+        RL_TURN_ID,
+        RL_ENCODER_ID,
+        INVERT_RL_DRIVE,
+        INVERT_RL_TURN,
+        RL_OFFSET);
 
-    private SwerveModule rearRightModule = new SwerveModule( 3,
-        new CANSparkMax(SwerveIDs.RR_DRIVE_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANSparkMax(SwerveIDs.RR_TURN_ID, CANSparkMaxLowLevel.MotorType.kBrushless),
-        new CANCoder(SwerveIDs.RR_ENCODER_ID),
-        SwerveInversions.INVERT_RR_DRIVE,
-        SwerveInversions.INVERT_RR_TURN,
-        SwerveModuleOffsets.RR_OFFSET);
+    /** The rear right (RR) {@link SwerveModule}. Module number is 3 */
+    private SwerveModule rearRightModule = new SwerveModule(3,
+        RR_DRIVE_ID,
+        RR_TURN_ID,
+        RR_ENCODER_ID,
+        INVERT_RR_DRIVE,
+        INVERT_RR_TURN,
+        RR_OFFSET);
 
     /** A {@link HashMap} associating each {@link SwerveModule module} with its {@link ModulePosition position} */
     private final HashMap<ModulePosition, SwerveModule> swerveModules =
@@ -84,7 +85,7 @@ public class Drivetrain extends SubsystemBase {
      *  While the robot is in robot centric mode, forward is whichever direction the robot is facing. */
     private boolean isFieldCentric = true;
 
-    // TODO add a useful comment here
+    /** Used to track the robot's position as it moves */
     private SwerveDriveOdometry odometry =
         new SwerveDriveOdometry(
             SwerveConstants.SWERVE_KINEMATICS,
@@ -92,7 +93,7 @@ public class Drivetrain extends SubsystemBase {
             getModulePositions(),
             new Pose2d());
 
-    /* Will potentially be used to track robot movement in auton
+    /* These will potentially be used to track robot movement in auton
     private ProfiledPIDController xController =
         new ProfiledPIDController(kP_X, 0, kD_X, kThetaControllerConstraints);
     private ProfiledPIDController yController =
@@ -116,9 +117,9 @@ public class Drivetrain extends SubsystemBase {
     public void drive( double translationX, double translationY, double rotation, boolean isOpenLoop ) {
 
 
-        translationY *= kMaxSpeedMetersPerSecond;
-        translationX *= kMaxSpeedMetersPerSecond;
-        rotation *= kMaxRotationRadiansPerSecond;
+        translationY *= MAX_TRANSLATION_SPEED;
+        translationX *= MAX_TRANSLATION_SPEED;
+        rotation *= MAX_ROTATION_SPEED;
 
         ChassisSpeeds chassisSpeeds =
             isFieldCentric
@@ -132,7 +133,7 @@ public class Drivetrain extends SubsystemBase {
         SwerveModuleState[] moduleStates = SWERVE_KINEMATICS.toSwerveModuleStates(chassisSpeeds);
 
         // Normalize output if any of the modules would be instructed to go faster than possible
-        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, kMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_TRANSLATION_SPEED);
 
         // Send instructions to each module
         for (SwerveModule module : swerveModules.values())
@@ -149,10 +150,10 @@ public class Drivetrain extends SubsystemBase {
     /** @return The position in meters and direction of the robot in degrees as a {@link Pose2d} object */
     public Pose2d getPoseMeters() { return odometry.getPoseMeters(); }
     /** @param moduleNumber The index of the module 
-     *  @return A single {@link SwerveModule swerve module} */
+     *  @return The {@link SwerveModule swerve module} at that index */
     public SwerveModule getSwerveModule(int moduleNumber) { return swerveModules.get(ModulePosition.values()[moduleNumber]); }
     /** @param position The {@link ModulePosition position} of the module
-     *  @return A single {@link SwerveModule swerve module} */
+     *  @return The {@link SwerveModule swerve module} at that position */
     public SwerveModule getSwerveModule(ModulePosition position) { return swerveModules.get(ModulePosition.FRONT_LEFT); }
     
     // Methods related to field orientation
@@ -163,16 +164,17 @@ public class Drivetrain extends SubsystemBase {
     /** @param isFieldCentric Whether the robot should be set to field centric or not */
     public void setFieldCentric(boolean isFieldCentric) { this.isFieldCentric = isFieldCentric; }
     /** @param isFieldCentric Whether the robot should be set to robot centric or not */
-    public void setRobotCentric(boolean isFieldCentric) { this.isFieldCentric = !isFieldCentric; }
+    public void setRobotCentric(boolean isRobotCentric) { this.isFieldCentric = !isFieldCentric; }
     /** Sets the robot to field centric if currently robot centric and vice versa */
     public void toggleFieldCentric() { isFieldCentric = !isFieldCentric; }
 
+    /** Sets the wheels of the robot into an X shape for anti-defense */
     public void lock() {
         int[] lockPos = {-45,45,-45,45};
         int i = 0;
 
         for (SwerveModule module : swerveModules.values()){
-            module.positionTurn(lockPos[i]);
+            module.turnTo(lockPos[i]);
             i++;
         }
     }
@@ -197,8 +199,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /** Updates the odometry of the robot using the {@link SwerveModulePosition position} 
-     *  of each module and the current heading of the robot
-     */
+     *  of each module and the current heading of the robot */
     public void updateOdometry() {
         odometry.update(getHeadingRotation2d(), getModulePositions());
 

@@ -4,7 +4,7 @@ package frc.robot.misc_subclasses;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import static frc.robot.Constants.LimelightConstants.*;
 
-// This class collects the data coming in from a Limelight camera
+/** This class collects the data coming in from a Limelight camera */
 public class Limelight {
     // Declare variables
     private double distance;
@@ -28,8 +28,7 @@ public class Limelight {
     public double getDrive() { return this.driveCommand; }
     public double getRotationAngle() { return this.tx; }
 
-    // Calculates each of limelight's values and updates
-    // their corresponding variables
+    /** Calculates each of limelight's values and updates their corresponding variables */
     public void updateLimelightTracking()
     {
         // Update Limelight tracking values

@@ -116,7 +116,7 @@ public class Arm {
         }
     }
 
-    /** Sets arm to initial position */
+    /** Moves the arm to initial position */
     public void zeroPosition(){
         rotationGoTo(0);
         telescopeGoTo(0);
@@ -128,47 +128,65 @@ public class Arm {
           
     }
 
+    /** Move the arm to an intermediate position that 
+     *  ensures the arm will not collide with the robot bumper */
     public void intermediatePosition() {
 
     }
 
+    /** Moves the arm to a position ideal for 
+     *  taking cargo from the human player */
     public void pickupHuman(){
        
     }
 
+    /** Moves the arm to a position ideal for 
+     *  picking up cargo from the floor */
     public void pickupFloor(){
         rotationGoTo(25);
         telescopeGoTo(15);
         sliderGoTo(2);
     }
 
-    /** Sets arm to reach bottom goal */
+    /** Moves the arm to reach bottom goal */
     public void dropoffLow(){
         
     }
 
-    /** Sets arm to reach middle goal */
+    /** Moves the arm to reach middle goal */
     public void dropoffMed(){
         rotationGoTo(90);
         telescopeGoTo(8);
         sliderGoTo(8.5);    
     }
 
-    /** Sets arm to reach top goal */
+    /** Moves the arm to reach top goal */
     public void dropoffHigh(){
        
     }
 
+    /** Moves the arm to a position defined by parameters */
     public void testPosition(double rotation, double tele, double slider){
         rotationGoTo(rotation);
         telescopeGoTo(tele);
+        sliderGoTo(slider);
     }
 
+    /** Handles situations where the arm will collide with the robot's bumpers 
+     * 
+     * @param targetState The state the arm wants to go to
+     * @return An {@link ArmState intermediate state} if the arm will collide.
+     *         The target {@link ArmState state} otherwise */
     private ArmState changeState(ArmState targetState){
         return willConflict(targetState)
             ? ArmState.INTERMEDIATE : targetState;
     }
 
+    /** Compares the current state to the target to see if there will be a
+     *  collision between the arm and the bumper of the robot
+     * 
+     *  @param targetState The state the arm wants to go to
+     *  @return Whether a collision will occur */
     private boolean willConflict(ArmState targetState) {
         if(currentState == ArmState.ZERO || currentState == ArmState.BALANCE
         && targetState == ArmState.DROPOFF_LOW || targetState == ArmState.PICKUP_FLOOR)

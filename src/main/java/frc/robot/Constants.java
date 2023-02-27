@@ -149,12 +149,13 @@ public final class Constants {
         public static final double THETA_CONTROLLER_D = 0;
 
 
-        public static final double kMaxSpeedMetersPerSecond = 3;
-        public static final double kMaxRotationRadiansPerSecond = Math.PI;
-        public static final double kMaxRotationRadiansPerSecondSquared = Math.PI * 2;
+        /** The max speed the robot is allowed to drive in m/sec */
+        public static final double MAX_TRANSLATION_SPEED = 4.5;
+        /** The max speed the robot is allowed to spin in rads/sec */
+        public static final double MAX_ROTATION_SPEED = Math.PI;
         public static final TrapezoidProfile.Constraints THETA_CONTROLLER_CONSTRAINTS =
             new TrapezoidProfile.Constraints(
-                kMaxRotationRadiansPerSecond, kMaxRotationRadiansPerSecondSquared);
+                MAX_ROTATION_SPEED, Math.PI * 2);
 
         public static final class ModuleConstants {
             /** The ratio of the drive motors on the workhorse chassis */
@@ -168,15 +169,14 @@ public final class Constants {
             public static final double WHEEL_DIAMETER = Units.inchesToMeters(3.94);
 
             /** Drive motor revolutions * DRIVE_REVS_TO_M = distance in meters */
-            public static final double DRIVE_REVS_TO_M =
-                ((WHEEL_DIAMETER * Math.PI) / DRIVE_RATIO_FAST); // Uses fast ratio
+            public static final double DRIVE_REVS_TO_M = ((WHEEL_DIAMETER * Math.PI) / DRIVE_RATIO_FAST);
 
             // 1 RPM * DRIVE_REVS_TO_M = speed in m/min. Divide by 60 to find m/sec
             /** Drive motor RPM * DRIVE_RPM_TO_MPS = speed in m/sec */
-            public static final double DRIVE_RPM_TO_MPS =
-                DRIVE_REVS_TO_M / 60.0;
-            public static final double kTurnRotationsToDegrees =
-                360.0 / TURN_RATIO;
+            public static final double DRIVE_RPM_TO_MPS = DRIVE_REVS_TO_M / 60.0;
+
+            /** Turning motor revolutions * TURNING_REVS_TO_DEG = Turning motor total degrees turned */
+            public static final double TURNING_REVS_TO_DEG =  360.0 / TURN_RATIO;
         }
     
         /** Enum representing the four possible positions a module can occupy */

@@ -5,10 +5,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.wrappers.GenericPID;
 
-// This class is used to handle SmartDashboard outputs.
-// The purpose of this class is to centralize code related to the dashboard.
+/** This class is used to handle {@link SmartDashboard} outputs.
+ *  The purpose of this class is to centralize code related to the dashboard. */
 public class Dashboard {
-    // Constructor method
+    /** Constructs a Dashboard object */
     public Dashboard() {}
 
     /** Prints the current position of a target relative to limelight 

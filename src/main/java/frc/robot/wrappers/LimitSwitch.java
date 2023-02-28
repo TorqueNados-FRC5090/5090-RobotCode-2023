@@ -2,14 +2,14 @@ package frc.robot.wrappers;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
-/** Wraps DigitalInput to represent a laser detector */
+/** Wraps {@link DigitalInput} to represent a laser detector */
 public class LimitSwitch {
     private DigitalInput limSwitch;
 
      /** 
      * Constructs LimitSwitch object 
      * 
-     * @param port The number of the DIO input
+     * @param port The number of the DIO port being used
      */
     public LimitSwitch(int port) {
         limSwitch = new DigitalInput(port);

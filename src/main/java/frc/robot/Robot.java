@@ -95,34 +95,33 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         robotContainer.teleopPeriodic();
 
-        if (operatorController.getLeftBumperPressed())
-            claw.open();
-        else if (operatorController.getRightBumperPressed())
-            claw.close();
-
-        // Pressing Y makes the arm go to the preset of the top position
-        if (operatorController.getYButtonPressed())
+        // Pressing Right bumper makes the arm go to the preset of the drop of high position
+        if (operatorController.getRightBumper())
             arm.goTo(ArmState.DROPOFF_HIGH);
 
-        // Pressing B makes the arm go to the preset of the middle position
-        if (operatorController.getBButtonPressed())
+        // Pressing Y makes the arm go to the preset of the drop of medium position
+        if (operatorController.getYButtonPressed())
             arm.goTo(ArmState.DROPOFF_MED);
 
-        // Pressing A makes the arm go to the preset of the bottom position
-        if (operatorController.getAButtonPressed())
+        // Pressing X makes the arm go to the preset of the drop of low position
+        if (operatorController.getXButtonPressed())
             arm.goTo(ArmState.DROPOFF_LOW);
 
-        // Pressing Start makes the arm go to the preset of the zero position
-        if (operatorController.getStartButtonPressed())
+        // Pressing A makes the arm go to the preset of the zero position
+        if (operatorController.getAButtonPressed())
             arm.goTo(ArmState.ZERO);
 
-        // Pressing X makes the arm go to the preset of the balance position
-        if (operatorController.getXButtonPressed())
+        // Pressing B makes the arm go to the preset of the balance position
+        if (operatorController.getBButtonPressed())
             arm.goTo(ArmState.BALANCE);
 
-        // Pressing Back makes the arm go to the preset of the delitray position
-        if (operatorController.getBackButtonPressed())
+        // Pressing Left bumper makes the arm go to the preset of the human pickup position
+        if (operatorController.getLeftBumperPressed())
             arm.goTo(ArmState.PICKUP_HUMAN);
+        
+        // Pressing Left trigger makes the arm go to the preset of the floor pickup position
+        if (operatorController.getLeftTriggerAxis() > 0)
+            arm.goTo(ArmState.PICKUP_FLOOR);
 
     }
 

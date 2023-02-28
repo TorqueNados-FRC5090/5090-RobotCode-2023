@@ -4,22 +4,33 @@ package frc.robot.misc_subclasses;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.wrappers.GenericPID;
 
-// This class is used to handle SmartDashboard outputs.
-// The purpose of this class is to centralize code related to the dashboard.
+/**
+ * This class is used to handle SmartDashboard outputs.
+ * The purpose of this class is to centralize code related to the dashboard.
+ */
 public class Dashboard {
-    // Constructor method
+    /** Constructor method for the Dashboard*/
     public Dashboard() {}
 
-    // Prints the current position of a target relative to limelight
+    /**
+    * Prints the current position of a target relative to limelight
+    *
+    *@param limelight Gets the value from the limelight
+    */
     public void printLimelightData(Limelight limelight) {
         SmartDashboard.putNumber("Distance from Target", limelight.getDistance());
         SmartDashboard.putNumber("Rotational Angle to Target", limelight.getRotationAngle());
     }
 
-    // Prints relevant data from a PID controller. If a value is manually 
-    // input into the dashboard, the pid setpoint will update accordingly
+    /**
+    * Prints relevant data from a PID controller. If a value is manually 
+    * input into the dashboard, the pid setpoint will update accordingly
+    *
+    *@param pid Asks for PID objects
+    *@param name Gives a name to be printed on the dashboard
+    */
     public void PIDtoDashboard(GenericPID pid, String name) {
-        // Get the setpoint from the dashboard
+        // Get the setpoint from the dashboard 
         double setpointD = SmartDashboard.getNumber(name + " Setpoint", pid.getSetpoint());
 
         // If the setpoint on the dashboard does not match the pid 

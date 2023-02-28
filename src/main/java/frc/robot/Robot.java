@@ -20,7 +20,7 @@ import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
 
 // Misc imports
 import edu.wpi.first.wpilibj.XboxController;
-//import frc.robot.Constants.ArmConstants.ArmState;
+import frc.robot.Constants.ArmConstants.ArmState;
 import frc.robot.misc_subclasses.Dashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
         // Construct objects
         robotContainer = new RobotContainer();
         operatorController = new XboxController(OPERATOR_PORT);
-        arm = new Arm(ROTATION_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
+        arm = new Arm(ROTATION_ID, ROTATION_FOLLOWER_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
         claw = new Claw(CLAW_LASER_PORT);
         limelight = new Limelight();
         dashboard = new Dashboard();
@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
             claw.open();
         else if (operatorController.getRightBumperPressed())
             claw.close();
-/*
+
         // Pressing Y makes the arm go to the preset of the top position
         if (operatorController.getYButtonPressed())
             arm.goTo(ArmState.DROPOFF_HIGH);
@@ -123,7 +123,7 @@ public class Robot extends TimedRobot {
         // Pressing Back makes the arm go to the preset of the delitray position
         if (operatorController.getBackButtonPressed())
             arm.goTo(ArmState.PICKUP_HUMAN);
-*/
+
     }
 
     // This function is called every 20ms while the robot is enabled

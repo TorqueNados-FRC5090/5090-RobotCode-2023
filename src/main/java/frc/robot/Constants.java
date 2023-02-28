@@ -50,6 +50,7 @@ public final class Constants {
     /** IDs used by the Arm */
     public static final class ArmIDs {
         public static final int ROTATION_ID = 10;
+        public static final int ROTATION_FOLLOWER_ID = 15;
         public static final int TELESCOPE_ID = 11;
         public static final int TELESCOPE_FOLLOWER_ID = 12;
         public static final int SLIDER_ID = 13;

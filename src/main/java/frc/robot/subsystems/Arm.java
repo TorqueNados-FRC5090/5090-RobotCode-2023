@@ -12,6 +12,7 @@ public class Arm {
 
     // Declare motors used by the arm
     private CANSparkMax rotation;
+    private CANSparkMax rotationFollower;
     private CANSparkMax telescope;
     private CANSparkMax telescopeFollower;
     private CANSparkMax slider;
@@ -27,18 +28,22 @@ public class Arm {
      * Constructs Arm subsystem
      * 
      * @param rotationId ID of the rotation motor
+     * @param rotationFollowerId ID of the rotation follower motor
      * @param telescopeId ID of the telescope motor
      * @param telescopeFollowerId ID of the telescope follower motor
      * @param sliderId ID of the slider motor
      */
-     public Arm(int rotationId, int telescopeId, int telescopeFollowerId, int sliderId){
+     public Arm(int rotationId, int rotationFollowerId, int telescopeId, int telescopeFollowerId, int sliderId){
 
         rotation = new CANSparkMax(rotationId, MotorType.kBrushless);
         rotation.restoreFactoryDefaults();
         rotationPID = new GenericPID(rotation,ControlType.kPosition , .025);
-        //rotationPID.setFeedForward(.1);
         rotationPID.setRatio(ROTATION_RATIO);
         //rotationPID.setInputRange(0,80);        
+
+        rotationFollower = new CANSparkMax(rotationFollowerId, MotorType.kBrushless);
+        rotationFollower.restoreFactoryDefaults();
+        rotationFollower.follow(rotation, true);
 
         telescope = new CANSparkMax(telescopeId, MotorType.kBrushless);
         telescope.restoreFactoryDefaults();

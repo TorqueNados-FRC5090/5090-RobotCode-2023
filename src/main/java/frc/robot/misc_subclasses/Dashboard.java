@@ -2,6 +2,7 @@ package frc.robot.misc_subclasses;
 
 // Imports
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.wrappers.GenericPID;
 
@@ -16,6 +17,16 @@ public class Dashboard {
     public void printLimelightData(Limelight limelight) {
         SmartDashboard.putNumber("Distance from Target", limelight.getDistance());
         SmartDashboard.putNumber("Rotational Angle to Target", limelight.getRotationAngle());
+    }
+
+    /** Prints the position and state of the arm
+     *  @param arm The robot's arm */
+    public void printArmData(Arm arm) {
+        PIDtoDashboard(arm.getRotationPid(), "Arm Rotator");
+        PIDtoDashboard(arm.getTelescopePid(), "Arm Telescope");
+        PIDtoDashboard(arm.getSliderPid(), "Arm Slider");
+
+        SmartDashboard.putString("Arm State", arm.getCurrentState().toString());
     }
 
     /** Prints the heading of the robot and whether it is in field centric mode or not 
@@ -44,7 +55,7 @@ public class Dashboard {
         // Print useful info to the dashboard
         SmartDashboard.putNumber(name + " Setpoint", pid.getSetpoint());
         SmartDashboard.putNumber(name + " RPM", pid.getRPM());
-        SmartDashboard.putNumber(name + " Position", pid.getPosition());
+        SmartDashboard.putNumber(name + " Position", pid.getRatioPos());
         SmartDashboard.putString(name + " Domain", "[" + pid.getMin() + ", " + pid.getMax() + "]");
     }
 }

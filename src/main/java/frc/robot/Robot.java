@@ -129,11 +129,9 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {    
         // Print data to the dashboard
-        dashboard.PIDtoDashboard(arm.getRotationPid(), "rotation");
-        dashboard.PIDtoDashboard(arm.getTelescopePid(), "telescope");
-        dashboard.PIDtoDashboard(arm.getSliderPid(), "slider");
         dashboard.printLimelightData(limelight);
         dashboard.printBasicDrivetrainData(robotContainer.getDrivetrain());
+        dashboard.printArmData(arm);
 
         // Run any functions that always need to be running
         CommandScheduler.getInstance().run();

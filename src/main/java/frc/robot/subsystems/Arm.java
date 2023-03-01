@@ -66,6 +66,7 @@ public class Arm {
     public GenericPID getRotationPid(){ return rotationPID; }
     public GenericPID getTelescopePid(){ return telescopePID; }
     public GenericPID getSliderPid() { return sliderPID; }
+    public ArmState getCurrentState() { return currentState; }
 
     /** Rotates the arm to a specific position 
      * @param target The target position in degrees */

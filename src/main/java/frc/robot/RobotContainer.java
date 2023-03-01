@@ -42,6 +42,7 @@ public class RobotContainer {
 
     /** @return The robot's drivetrain */
     public Drivetrain getDrivetrain() { return drivetrain; }
+    public Claw getClaw() { return claw; }
 
     // For running TimedRobot style code in RobotContainer
     /** Should always be called from Robot.teleopPeriodic() */

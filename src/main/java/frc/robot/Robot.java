@@ -1,29 +1,28 @@
 package frc.robot;
 
-// Command imports
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+// Import Constants
+import static frc.robot.Constants.ArmIDs.ROTATION_FOLLOWER_ID;
+import static frc.robot.Constants.ArmIDs.ROTATION_ID;
+import static frc.robot.Constants.ArmIDs.SLIDER_ID;
+import static frc.robot.Constants.ArmIDs.TELESCOPE_FOLLOWER_ID;
+import static frc.robot.Constants.ArmIDs.TELESCOPE_ID;
+import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
 
 // Camera imports
 import edu.wpi.first.cameraserver.CameraServer;
-import frc.robot.misc_subclasses.Limelight;
-
-// Subsystem and subclass imports
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
-
-// Import Constants
-import static frc.robot.Constants.ArmIDs.*;
-import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
-import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
-
-// Misc imports
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.ArmConstants.ArmState;
-import frc.robot.misc_subclasses.Dashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+// Command imports
+import edu.wpi.first.wpilibj.TimedRobot;
+// Misc imports
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ArmConstants.ArmState;
+import frc.robot.misc_subclasses.Dashboard;
+import frc.robot.misc_subclasses.Limelight;
+// Subsystem and subclass imports
+import frc.robot.subsystems.Arm;
 
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;
@@ -33,7 +32,6 @@ public class Robot extends TimedRobot {
 
     // Subsystem and subclass objects
     private Arm arm;
-    private Claw claw;
     private Dashboard dashboard;
     private Limelight limelight;
     
@@ -59,7 +57,6 @@ public class Robot extends TimedRobot {
         robotContainer = new RobotContainer();
         operatorController = new XboxController(OPERATOR_PORT);
         arm = new Arm(ROTATION_ID, ROTATION_FOLLOWER_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
-        claw = new Claw(CLAW_LASER_PORT);
         limelight = new Limelight();
         dashboard = new Dashboard();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
@@ -103,9 +100,9 @@ public class Robot extends TimedRobot {
         if (operatorController.getYButtonPressed())
             arm.goTo(ArmState.DROPOFF_MED);
 
-        // Pressing X makes the arm go to the preset of the drop of low position
+        // Pressing Left trigger makes the arm go to the preset of the floor pickup position
         if (operatorController.getXButtonPressed())
-            arm.goTo(ArmState.DROPOFF_LOW);
+            arm.goTo(ArmState.INTERMEDIATE);
 
         // Pressing A makes the arm go to the preset of the zero position
         if (operatorController.getAButtonPressed())
@@ -180,20 +177,20 @@ public class Robot extends TimedRobot {
 
         // Pressing B resets the arm to where it was when the robot was powered on
         if (operatorController.getBButtonPressed())
-            arm.zeroPosition();
+            arm.goTo(ArmState.ZERO);
 
         // Testing configuration button
         if (operatorController.getAButtonPressed()) {
-            //arm.rotationGoTo(80);
-            //rotationPos = 80;
-            arm.pickupFloor();
+            //arm.rotationGoTo(50);
+            //rotationPos = 50;
+            arm.goTo(ArmState.PICKUP_FLOOR);
         }
 
         // Control the claw in test mode
         if (operatorController.getStartButtonPressed())
-            claw.open();
+            robotContainer.getClaw().open();
         else if (operatorController.getBackButtonPressed())
-            claw.close();
+            robotContainer.getClaw().close();
 
         // Print the arm positions every 2 sec
         if(i == 100) {

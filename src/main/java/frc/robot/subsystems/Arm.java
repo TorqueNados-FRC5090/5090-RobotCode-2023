@@ -49,7 +49,7 @@ public class Arm {
         telescope.restoreFactoryDefaults();
         telescopePID = new GenericPID(telescope, ControlType.kPosition, .025);
         telescopePID.setRatio(TELESCOPE_RATIO);
-        telescopePID.setInputRange(0,17); 
+        //telescopePID.setInputRange(0,17); 
         
         telescopeFollower = new CANSparkMax(telescopeFollowerId, MotorType.kBrushless);
         telescopeFollower.restoreFactoryDefaults();
@@ -58,9 +58,9 @@ public class Arm {
         slider = new CANSparkMax(sliderId, MotorType.kBrushless);
         slider.restoreFactoryDefaults();
         slider.setInverted(true);
-        sliderPID = new GenericPID(slider, ControlType.kPosition, .025, .000005, .0000005);
+        sliderPID = new GenericPID(slider, ControlType.kPosition, .035);
         sliderPID.setRatio(SLIDER_RATIO);
-        sliderPID.setInputRange(0,14); 
+        //sliderPID.setInputRange(0,14); 
 
     }
 
@@ -91,10 +91,9 @@ public class Arm {
 
     /**  */
     public void goTo(ArmState preset) {
-        preset = changeState(preset);
-        currentState = preset;
+        currentState = changeState(preset);
 
-        switch(preset) {
+        switch(currentState) {
             case ZERO:
                 zeroPosition();
                 break;
@@ -109,9 +108,6 @@ public class Arm {
                 break;
             case PICKUP_HUMAN:
                 pickupHuman();
-                break;
-            case DROPOFF_LOW:
-                dropoffLow();
                 break;
             case DROPOFF_MED:
                 dropoffMed();
@@ -137,38 +133,40 @@ public class Arm {
     /** Move the arm to an intermediate position that 
      *  ensures the arm will not collide with the robot bumper */
     public void intermediatePosition() {
+        rotationGoTo(25);
+        telescopeGoTo(1);
+        sliderGoTo(4.5);
 
     }
 
     /** Moves the arm to a position ideal for 
      *  taking cargo from the human player */
     public void pickupHuman(){
-       
+        rotationGoTo(80);
+        telescopeGoTo(0);
+        sliderGoTo(-1);
     }
 
     /** Moves the arm to a position ideal for 
      *  picking up cargo from the floor */
     public void pickupFloor(){
-        rotationGoTo(25);
-        telescopeGoTo(15);
-        sliderGoTo(2);
-    }
-
-    /** Moves the arm to reach bottom goal */
-    public void dropoffLow(){
-        
+        rotationGoTo(10);
+        telescopeGoTo(11);
+        sliderGoTo(9.5);   
     }
 
     /** Moves the arm to reach middle goal */
     public void dropoffMed(){
-        rotationGoTo(90);
-        telescopeGoTo(8);
-        sliderGoTo(8.5);    
+        rotationGoTo(80);
+        telescopeGoTo(7);
+        sliderGoTo(5.5);    
     }
 
     /** Moves the arm to reach top goal */
     public void dropoffHigh(){
-       
+       rotationGoTo(94);
+       telescopeGoTo(15.8);
+       sliderGoTo(14);
     }
 
     /** Moves the arm to a position defined by parameters */
@@ -194,11 +192,11 @@ public class Arm {
      *  @param targetState The state the arm wants to go to
      *  @return Whether a collision will occur */
     private boolean willConflict(ArmState targetState) {
-        if(currentState == ArmState.ZERO || currentState == ArmState.BALANCE
-        && targetState == ArmState.DROPOFF_LOW || targetState == ArmState.PICKUP_FLOOR)
+        if((currentState == ArmState.ZERO || currentState == ArmState.BALANCE)
+        && (targetState == ArmState.DROPOFF_LOW || targetState == ArmState.PICKUP_FLOOR))
             return true;
-        else if(targetState == ArmState.ZERO || targetState == ArmState.BALANCE
-        && currentState == ArmState.DROPOFF_LOW || currentState == ArmState.PICKUP_FLOOR)    
+        else if((targetState == ArmState.ZERO || targetState == ArmState.BALANCE)
+        && (currentState == ArmState.DROPOFF_LOW || currentState == ArmState.PICKUP_FLOOR))    
             return true;
         else
             return false;

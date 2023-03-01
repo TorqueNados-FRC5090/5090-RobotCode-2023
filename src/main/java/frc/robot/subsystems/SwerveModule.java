@@ -87,7 +87,7 @@ public class SwerveModule extends SubsystemBase {
         driveController = driveMotor.getPIDController();
 
         // Construct and configure the turning motor
-        turnMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
+        turnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         turnMotor.restoreFactoryDefaults();
         turnMotor.setSmartCurrentLimit(20);
         turnMotor.getPIDController().setFF(0.0);

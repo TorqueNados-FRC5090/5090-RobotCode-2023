@@ -215,6 +215,15 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
+     /**resets the odometry of the modules */
+     public void resetOdometry(){
+        odometry.resetPosition(
+            getHeadingRotation2d(),
+            getModulePositions(),
+            new Pose2d());
+    }
+
+
     
     @Override // Called every 20ms
     public void periodic() {

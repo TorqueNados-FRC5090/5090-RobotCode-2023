@@ -2,8 +2,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.DriveForward;
 import frc.robot.commands.LockDrivetrain;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Claw;
@@ -37,7 +40,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new DriveCommand(drivetrain, () -> 0, () -> .5, () -> 0);
+        return new SequentialCommandGroup(new WaitCommand(5), new DriveForward(drivetrain, 1));
     }
 
     /** @return The robot's drivetrain */

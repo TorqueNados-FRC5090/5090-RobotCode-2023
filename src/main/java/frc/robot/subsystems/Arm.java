@@ -193,10 +193,10 @@ public class Arm {
      *  @return Whether a collision will occur */
     private boolean willConflict(ArmState targetState) {
         if((currentState == ArmState.ZERO || currentState == ArmState.BALANCE)
-        && (targetState == ArmState.DROPOFF_LOW || targetState == ArmState.PICKUP_FLOOR))
+        && (targetState == ArmState.PICKUP_FLOOR))
             return true;
         else if((targetState == ArmState.ZERO || targetState == ArmState.BALANCE)
-        && (currentState == ArmState.DROPOFF_LOW || currentState == ArmState.PICKUP_FLOOR))    
+        && (currentState == ArmState.PICKUP_FLOOR))    
             return true;
         else
             return false;

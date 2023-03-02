@@ -145,6 +145,22 @@ public class SwerveModule extends SubsystemBase {
         turnEncoder.setPosition(angle);
     }
 
+      /**Resets this modules drive encoder*/
+      public void resetDriveEncoder(){
+        driveEncoder.setPosition(0);
+    }
+
+    /**Resets this modules turn encoder */
+    public void resetTurnEncoder(){
+        turnEncoder.setPosition(0);
+    }
+
+    /**Resets both turn and drive encoders for this module */
+    public void resetEncoders(){
+        resetTurnEncoder();
+        resetDriveEncoder();
+    }
+
     /** Set the entire module to a desired {@link SwerveModuleState state}, controlling
      *  both the direction and speed at the same time
      * 

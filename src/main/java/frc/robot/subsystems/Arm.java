@@ -142,7 +142,7 @@ public class Arm {
     /** Moves the arm to a position ideal for 
      *  taking cargo from the human player */
     public void pickupHuman(){
-        rotationGoTo(80);
+        rotationGoTo(75);
         telescopeGoTo(0);
         sliderGoTo(-1);
     }
@@ -164,8 +164,8 @@ public class Arm {
 
     /** Moves the arm to reach top goal */
     public void dropoffHigh(){
-       rotationGoTo(94);
-       telescopeGoTo(15.8);
+       rotationGoTo(96);
+       telescopeGoTo(16);
        sliderGoTo(14);
     }
 

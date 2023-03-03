@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 // Command imports
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 // Misc imports
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +39,7 @@ public class Robot extends TimedRobot {
     // Other objects
     private XboxController operatorController;
     private Compressor compressor;
+    private double autonStartTime;
 
     // Used to test the arm
     private double rotationPos;
@@ -60,6 +62,7 @@ public class Robot extends TimedRobot {
         limelight = new Limelight();
         dashboard = new Dashboard();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
+        
     }
 
     // This function is called once at the start of auton
@@ -67,14 +70,24 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         // Get the command to be used in auton
         autonCommand = robotContainer.getAutonomousCommand();
+        autonStartTime = Timer.getFPGATimestamp();
         // Schedule the command if there is one
         if (autonCommand != null)
             autonCommand.schedule();
+
+        arm.goTo(ArmState.DROPOFF_MED);
     }
 
     // This function is called every 20ms during auton
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() { 
+        double currentTime = Timer.getFPGATimestamp() - autonStartTime;
+        if (currentTime > 3 && currentTime < 3.2)
+            robotContainer.getClaw().open();
+
+        if (currentTime > 4 && currentTime < 4.2)
+            arm.goTo(ArmState.ZERO);
+    }
     
     // This function is called once at the start of teleop
     @Override
@@ -134,6 +147,36 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         limelight.updateLimelightTracking();
     }
+
+    @Override
+    public void testPeriodic() {
+        if(operatorController.getAButton())
+            arm.getSliderMotor().set(.15);
+        else if(operatorController.getBButton())
+            arm.getSliderMotor().set(-.15);
+        else
+            arm.getSliderMotor().set(0); 
+
+        if(operatorController.getXButton())
+            arm.getTelescopeMotor().set(.1);
+        else if(operatorController.getYButton())
+            arm.getTelescopeMotor().set(-.1);
+        else
+            arm.getTelescopeMotor().set(0); 
+
+        if(operatorController.getRightBumper())
+            arm.getRotationMotor().set(.05);
+        else if(operatorController.getRightTriggerAxis() > .5)
+            arm.getRotationMotor().set(-.05);
+        else
+            arm.getRotationMotor().set(0); 
+    }
+
+
+
+
+/* --------------- OLD TEST MODE --------------- */
+    /*
 
     //----------- test functionality below -----------
     // This function is called once at the start of a test
@@ -204,4 +247,5 @@ public class Robot extends TimedRobot {
         // The dpad's previous value is updated for debounce
         prev = curr; 
     }
+    */
 }

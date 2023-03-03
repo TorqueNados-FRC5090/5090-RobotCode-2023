@@ -174,9 +174,22 @@ public class Drivetrain extends SubsystemBase {
         int i = 0;
 
         for (SwerveModule module : swerveModules.values()){
-            module.turnTo(lockPos[i]);
+            module.setDesiredState(
+            new SwerveModuleState(
+                0, 
+                new Rotation2d(lockPos[i])),    
+            true);
             i++;
         }
+    }
+
+    public void zeroWheels() { 
+         for (SwerveModule module : swerveModules.values())
+            module.setDesiredState(
+            new SwerveModuleState(
+                0, 
+                new Rotation2d(0)),    
+            true);
     }
 
     /** @return An array containing the current {@link SwerveModuleState state} of each module */

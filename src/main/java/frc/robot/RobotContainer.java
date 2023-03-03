@@ -1,5 +1,9 @@
 package frc.robot;
 
+import static frc.robot.Constants.ControllerPorts.DRIVER_PORT;
+import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
+
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -8,11 +12,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.DriveForward;
 import frc.robot.commands.LockDrivetrain;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.commands.ZeroWheels;
 import frc.robot.subsystems.Claw;
-
-import static frc.robot.Constants.ControllerPorts.DRIVER_PORT;
-import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
+import frc.robot.subsystems.Drivetrain;
 
 /** This is where the drivetrain will be controlled */
 public class RobotContainer {
@@ -40,7 +42,21 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new SequentialCommandGroup(new WaitCommand(5), new DriveForward(drivetrain, 1));
+        // Auton for going over the line
+        return new SequentialCommandGroup(
+            new ZeroWheels(drivetrain), 
+            new WaitCommand(5), 
+            new DriveForward(drivetrain, -Units.feetToMeters(12), .2), 
+            new LockDrivetrain(drivetrain));
+        // Auton for balancing 
+        /*
+        return new SequentialCommandGroup(
+            new ZeroWheels(drivetrain),
+            new WaitCommand(5),
+            new DriveForward(drivetrain, -4, .2),
+            new DriveForward(drivetrain, 2, .2),
+            new LockDrivetrain(drivetrain));
+        */
     }
 
     /** @return The robot's drivetrain */
@@ -56,10 +72,7 @@ public class RobotContainer {
         if(driverController.getBackButtonPressed())
             drivetrain.resetHeading();
 
-        if(driverController.getLeftBumperPressed())
-            claw.open();
-
-        else if (driverController.getRightBumperPressed())
-            claw.close();
+        if(driverController.getRightBumperPressed())
+            claw.toggleClaw();
     }
 }

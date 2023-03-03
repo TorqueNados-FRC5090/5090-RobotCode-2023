@@ -9,38 +9,41 @@ public class DriveForward extends CommandBase{
 
    private double distance; 
    private double target;
+   private double speed;
 
 
    /**constructor
     * @param drivetrain creates dependency on drive train
     * @param target creates a target that can be changed 
+    * @param speed the percent speed to drive the robot
     */
-    public DriveForward(Drivetrain drivetrain, double target){
+    public DriveForward(Drivetrain drivetrain, double target, double speed){
         
         this.drivetrain = drivetrain;
         this.target = target;
+        this.speed = speed;
         
         addRequirements(drivetrain);
 
     }
 
-@Override
+    @Override
     public void initialize(){
         drivetrain.resetOdometry();
     }    
 
-@Override
+    @Override
     public void execute(){
-        drivetrain.drive(0, .4 * Math.signum(target), 0, true);
+        drivetrain.drive(0, Math.abs(speed) * Math.signum(target), 0, true);
         distance = drivetrain.getPoseMeters().getTranslation().getX();
     }
 
-@Override
+    @Override
     public boolean isFinished(){
-        return Math.abs(distance) >= target;
+        return Math.abs(distance) >= Math.abs(target);
     }
 
-@Override
+    @Override
     public void end(boolean interrupted){
         drivetrain.resetOdometry();
     }

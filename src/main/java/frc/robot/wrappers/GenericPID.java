@@ -126,8 +126,6 @@ public class GenericPID {
     public void setSetpoint(double set) {
         set *= ratio;
 
-        System.out.println("set: " + set + " | min: " +  min + " | max: " + max);
-
         this.setpoint = set < min ? min : 
                       ( set > max ? max : set );
     }

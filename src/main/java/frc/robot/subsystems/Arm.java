@@ -4,11 +4,13 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.ArmConstants.*;
 
 /** This class is used to control the robot's arm */
-public class Arm {
+public class Arm extends SubsystemBase {
 
     // Declare motors used by the arm
     private CANSparkMax rotation;
@@ -87,25 +89,6 @@ public class Arm {
     }
     public ArmState getCurrentState() { return currentState; }
 
-    /** Rotates the arm to a specific position 
-     * @param target The target position in degrees */
-    public void rotationGoTo(double target){
-        double pidOut = rotationPID.calculate(getRotationPos(), target);
-        rotation.set(pidOut);
-    }  
-    /** Extends arm to a specific length 
-     *  @param target The target length in inches */
-    public void telescopeGoTo(double target){    
-        double pidOut = telescopePID.calculate(getTelescopePos(), target);
-        telescope.set(pidOut);
-    }
-    /** Slides arm to a specific position on the chassis
-     *  @param target The target position in inches */
-    public void sliderGoTo(double target){
-        double pidOut = sliderPID.calculate(getSliderPos(), target);
-        slider.set(pidOut);
-    }
-
     /** Send the arm to a target state and update the state
      *  @param preset The state to go to
      */
@@ -136,54 +119,65 @@ public class Arm {
 
     /** Moves the arm to initial position */
     public void zeroPosition(){
-        rotationGoTo(0);
-        telescopeGoTo(0);
-        sliderGoTo(0);
+        rotationPID.setSetpoint(0);
+        telescopePID.setSetpoint(0);
+        sliderPID.setSetpoint(0);
     }
 
     /** Move the arm to an intermediate position that 
      *  ensures the arm will not collide with the robot bumper */
     public void intermediatePosition() {
-        rotationGoTo(25);
-        telescopeGoTo(1);
-        sliderGoTo(4.5);
+        rotationPID.setSetpoint(25);
+        telescopePID.setSetpoint(1);
+        sliderPID.setSetpoint(4.5);
 
     }
 
     /** Moves the arm to a position ideal for 
      *  taking cargo from the human player */
     public void pickupHuman(){
-        rotationGoTo(75);
-        telescopeGoTo(0);
-        sliderGoTo(-1);
+        rotationPID.setSetpoint(75);
+        telescopePID.setSetpoint(0);
+        sliderPID.setSetpoint(-1);
     }
 
     /** Moves the arm to a position ideal for 
      *  picking up cargo from the floor */
     public void pickupFloor(){
-        rotationGoTo(10);
-        telescopeGoTo(11);
-        sliderGoTo(9.5);   
+        rotationPID.setSetpoint(10);
+        telescopePID.setSetpoint(11);
+        sliderPID.setSetpoint(9.5);   
     }
 
     /** Moves the arm to reach middle goal */
     public void dropoffMed(){
-        rotationGoTo(80);
-        telescopeGoTo(7);
-        sliderGoTo(5.5);    
+        rotationPID.setSetpoint(80);
+        telescopePID.setSetpoint(7);
+        sliderPID.setSetpoint(5.5);    
     }
 
     /** Moves the arm to reach top goal */
     public void dropoffHigh(){
-       rotationGoTo(96);
-       telescopeGoTo(16);
-       sliderGoTo(14);
+       rotationPID.setSetpoint(96);
+       telescopePID.setSetpoint(16);
+       sliderPID.setSetpoint(14);
     }
 
     /** Moves the arm to a position defined by parameters */
     public void testPosition(double rotation, double tele, double slider){
-        rotationGoTo(rotation);
-        telescopeGoTo(tele);
-        sliderGoTo(slider);
+        rotationPID.setSetpoint(rotation);
+        telescopePID.setSetpoint(tele);
+        sliderPID.setSetpoint(slider);
+    }
+
+    @Override // Called every 20ms
+    public void periodic() {
+        double rotationPIDOut = rotationPID.calculate(getRotationPos());
+        double telescopePIDOut = telescopePID.calculate(getTelescopePos());
+        double sliderPIDOut = sliderPID.calculate(getSliderPos());
+
+        rotation.setVoltage(rotationPIDOut * RobotController.getBatteryVoltage());
+        telescope.setVoltage(telescopePIDOut * RobotController.getBatteryVoltage());
+        slider.setVoltage(sliderPIDOut * RobotController.getBatteryVoltage());
     }
 }

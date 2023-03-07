@@ -141,12 +141,9 @@ public final class Constants {
             new SwerveDriveKinematics(MODULE_TRANSLATIONS);
 
         // PID values for the X, Y, and Theta controllers
-        public static final double X_CONTROLLER_P = 0.2;
-        public static final double X_CONTROLLER_D = 0;
-        public static final double Y_CONTROLLER_P = 0.2;
-        public static final double Y_CONTROLLER_D = 0;
-        public static final double THETA_CONTROLLER_P = 8;
-        public static final double THETA_CONTROLLER_D = 0;
+        public static final double X_CONTROLLER_P = 1.5;
+        public static final double Y_CONTROLLER_P = 1.5;
+        public static final double THETA_CONTROLLER_P = 3;
 
 
         /** The max speed the robot is allowed to drive in m/sec */

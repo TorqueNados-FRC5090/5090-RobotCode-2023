@@ -2,7 +2,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Math Imports
-//import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
@@ -93,14 +94,13 @@ public class Drivetrain extends SubsystemBase {
             getModulePositions(),
             new Pose2d());
 
-    /* These will potentially be used to track robot movement in auton
-    private ProfiledPIDController xController =
-        new ProfiledPIDController(kP_X, 0, kD_X, kThetaControllerConstraints);
-    private ProfiledPIDController yController =
-        new ProfiledPIDController(kP_Y, 0, kD_Y, kThetaControllerConstraints);
+    /** Used for auton to automatically adjust for inaccuracies in the robot's movement */
+    private PIDController xController =
+        new PIDController(X_CONTROLLER_P, 0, 0);
+    private PIDController yController =
+        new PIDController(Y_CONTROLLER_P, 0, 0);
     private ProfiledPIDController turnController =
-        new ProfiledPIDController(kP_Theta, 0, kD_Theta, kThetaControllerConstraints);
-    */
+        new ProfiledPIDController(THETA_CONTROLLER_P, 0, 0, THETA_CONTROLLER_CONSTRAINTS);
     
     /** Constructs a drivetrain {@link SubsystemBase subsystem} */
     public Drivetrain() {
@@ -115,8 +115,7 @@ public class Drivetrain extends SubsystemBase {
      * @param rotation The rotational instruction
     */
     public void drive( double translationX, double translationY, double rotation, boolean isOpenLoop ) {
-
-
+        // Convert inputs from % to m/sec
         translationY *= MAX_TRANSLATION_SPEED;
         translationX *= MAX_TRANSLATION_SPEED;
         rotation *= MAX_ROTATION_SPEED;
@@ -140,7 +139,6 @@ public class Drivetrain extends SubsystemBase {
             module.setDesiredState(moduleStates[module.getModuleNumber()], isOpenLoop);
     }
 
-
     /** @return The current direction the robot is facing in degrees */
     public double getHeadingDegrees() { return -Math.IEEEremainder(gyro.getAngle(), 360); }
     /** @return The current direction the robot is facing as a {@link Rotation2d} object */
@@ -155,6 +153,15 @@ public class Drivetrain extends SubsystemBase {
     /** @param position The {@link ModulePosition position} of the module
      *  @return The {@link SwerveModule swerve module} at that position */
     public SwerveModule getSwerveModule(ModulePosition position) { return swerveModules.get(ModulePosition.FRONT_LEFT); }
+
+    /** @return The PID controller used to track movement along the X axis */
+    public PIDController getXPidController() { return xController; }
+    /** @return The PID controller used to track movement along the Y axis */
+    public PIDController getYPidController() { return yController; }
+    /** @return The PID controller used to track rotation */
+    public ProfiledPIDController getThetaPidController() { return turnController; }
+    /** @return The PID controller used to track rotation */
+    public ProfiledPIDController getTurnPidController() { return turnController; }
     
     // Methods related to field orientation
     /** @return Whether or not the robot is in field oriented mode */
@@ -164,32 +171,30 @@ public class Drivetrain extends SubsystemBase {
     /** @param isFieldCentric Whether the robot should be set to field centric or not */
     public void setFieldCentric(boolean isFieldCentric) { this.isFieldCentric = isFieldCentric; }
     /** @param isFieldCentric Whether the robot should be set to robot centric or not */
-    public void setRobotCentric(boolean isRobotCentric) { this.isFieldCentric = !isFieldCentric; }
+    public void setRobotCentric(boolean isRobotCentric) { this.isFieldCentric = !isRobotCentric; }
     /** Sets the robot to field centric if currently robot centric and vice versa */
-    public void toggleFieldCentric() { isFieldCentric = !isFieldCentric; }
+    public void toggleFieldCentric() { this.isFieldCentric = !this.isFieldCentric; }
 
     /** Sets the wheels of the robot into an X shape for anti-defense */
     public void lock() {
         int[] lockPos = {-45,45,-45,45};
         int i = 0;
 
-        for (SwerveModule module : swerveModules.values()){
+
+        for (SwerveModule module : swerveModules.values()) {
             module.setDesiredState(
-            new SwerveModuleState(
-                0, 
-                new Rotation2d(lockPos[i])),    
-            true);
+                new SwerveModuleState(0, new Rotation2d(lockPos[i])),    
+                true);
             i++;
         }
     }
 
+    /** Resets the wheels of the robot to point forward */
     public void zeroWheels() { 
          for (SwerveModule module : swerveModules.values())
             module.setDesiredState(
-            new SwerveModuleState(
-                0, 
-                new Rotation2d(0)),    
-            true);
+                new SwerveModuleState(0, new Rotation2d(0)),    
+                true);
     }
 
     /** @return An array containing the current {@link SwerveModuleState state} of each module */
@@ -229,7 +234,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
      /**resets the odometry of the modules */
-     public void resetOdometry(){
+     public void resetOdometry() {
         odometry.resetPosition(
             getHeadingRotation2d(),
             getModulePositions(),

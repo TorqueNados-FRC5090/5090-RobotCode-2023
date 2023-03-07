@@ -69,18 +69,23 @@ public class Robot extends TimedRobot {
         // Schedule the command if there is one
         if (autonCommand != null)
             autonCommand.schedule();
-
-        arm.goTo(ArmState.DROPOFF_MED);
     }
 
     // This function is called every 20ms during auton
     @Override
     public void autonomousPeriodic() { 
         double currentTime = Timer.getFPGATimestamp() - autonStartTime;
-        if (currentTime > 3 && currentTime < 3.2)
+
+        // Start by lifting the arm to dropoff position
+        if (currentTime < .2)
+            arm.goTo(ArmState.DROPOFF_MED);
+
+        // Drop the preloaded piece
+        if (currentTime > 2 && currentTime < 2.2)
             claw.open();
 
-        if (currentTime > 4 && currentTime < 4.2)
+        // Return the arm to zero
+        if (currentTime > 3 && currentTime < 3.2)
             arm.goTo(ArmState.ZERO);
     }
     

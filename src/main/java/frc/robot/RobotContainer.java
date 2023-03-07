@@ -46,17 +46,8 @@ public class RobotContainer {
         return new SequentialCommandGroup(
             new ZeroWheels(drivetrain), 
             new WaitCommand(5), 
-            new DriveForward(drivetrain, -Units.feetToMeters(12), .2), 
+            new DriveForward(drivetrain, -Units.feetToMeters(16), .3), 
             new LockDrivetrain(drivetrain));
-        // Auton for balancing 
-        /*
-        return new SequentialCommandGroup(
-            new ZeroWheels(drivetrain),
-            new WaitCommand(5),
-            new DriveForward(drivetrain, -4, .2),
-            new DriveForward(drivetrain, 2, .2),
-            new LockDrivetrain(drivetrain));
-        */
     }
 
     /** @return The robot's drivetrain */

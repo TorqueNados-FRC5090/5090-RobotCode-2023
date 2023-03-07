@@ -19,12 +19,17 @@ public class Dashboard {
         SmartDashboard.putNumber("Rotational Angle to Target", limelight.getRotationAngle());
     }
 
-    /** Prints the position and state of the arm
+    /** Prints the state of the arm
      *  @param arm The robot's arm */
     public void printArmData(Arm arm) {
-        PIDtoDashboard(arm.getRotationPid(), "Arm Rotator");
-        PIDtoDashboard(arm.getTelescopePid(), "Arm Telescope");
-        PIDtoDashboard(arm.getSliderPid(), "Arm Slider");
+        SmartDashboard.putNumber("Rotation Position", arm.getRotationPos());
+        SmartDashboard.putNumber("Telescope Position", arm.getTelescopePos());
+        SmartDashboard.putNumber("Slider Position", arm.getSliderPos());
+
+        SmartDashboard.putBoolean("Rotation at Setpoint", arm.rotationAtTarget());
+        SmartDashboard.putBoolean("Telescope at Setpoint", arm.telescopeAtTarget());
+        SmartDashboard.putBoolean("Slider at Setpoint", arm.sliderAtTarget());
+        SmartDashboard.putBoolean("Arm at Setpoint", arm.atTarget());
 
         SmartDashboard.putString("Arm State", arm.getCurrentState().toString());
     }
@@ -55,7 +60,7 @@ public class Dashboard {
         // Print useful info to the dashboard
         SmartDashboard.putNumber(name + " Setpoint", pid.getSetpoint());
         SmartDashboard.putNumber(name + " RPM", pid.getRPM());
-        SmartDashboard.putNumber(name + " Position", pid.getRatioPos());
+        SmartDashboard.putNumber(name + " Position", pid.getPosition());
         SmartDashboard.putString(name + " Domain", "[" + pid.getMin() + ", " + pid.getMax() + "]");
     }
 }

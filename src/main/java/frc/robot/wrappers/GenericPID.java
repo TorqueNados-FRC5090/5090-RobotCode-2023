@@ -97,8 +97,8 @@ public class GenericPID {
     public double getSetpoint() { return setpoint/ratio; }
     public CANSparkMax.ControlType getControlType() { return controlType; }
     public double getRPM() { return motor.getEncoder().getVelocity(); }
-    public double getPosition() { return motor.getEncoder().getPosition(); }
-    public double getRatioPos() {return getPosition()/ratio;}
+    public double getPositionNoRatio() { return motor.getEncoder().getPosition(); }
+    public double getPosition() {return getPositionNoRatio()/ratio;}
     public double getMin() { return min; }
     public double getMax() { return max; }
     public SparkMaxPIDController getController() { return controller; }

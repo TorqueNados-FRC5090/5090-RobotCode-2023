@@ -121,10 +121,6 @@ public class Robot extends TimedRobot {
         if (operatorController.getAButtonPressed())
             arm.goTo(ArmState.ZERO);
 
-        // Pressing B makes the arm go to the preset of the balance position
-        if (operatorController.getBButtonPressed())
-            arm.goTo(ArmState.BALANCE);
-
         // Pressing Left bumper makes the arm go to the preset of the human pickup position
         if (operatorController.getLeftBumperPressed())
             arm.goTo(ArmState.PICKUP_HUMAN);
@@ -132,7 +128,6 @@ public class Robot extends TimedRobot {
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
         if (operatorController.getLeftTriggerAxis() > 0)
             arm.goTo(ArmState.PICKUP_FLOOR);
-
     }
 
     // This function is called every 20ms while the robot is enabled

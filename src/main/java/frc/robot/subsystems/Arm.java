@@ -1,9 +1,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import frc.robot.wrappers.GenericPID;
+
+import edu.wpi.first.math.controller.PIDController;
 
 import static frc.robot.Constants.ArmConstants.*;
 
@@ -17,10 +17,10 @@ public class Arm {
     private CANSparkMax telescopeFollower;
     private CANSparkMax slider;
 
-    // Declare GenericPID objects to control the motors
-    private GenericPID rotationPID;
-    private GenericPID telescopePID;
-    private GenericPID sliderPID;
+    // Declare PID controllers to control the motors
+    private PIDController rotationPID;
+    private PIDController telescopePID;
+    private PIDController sliderPID;
 
     private ArmState currentState = ArmState.ZERO;
     
@@ -37,9 +37,9 @@ public class Arm {
 
         rotation = new CANSparkMax(rotationId, MotorType.kBrushless);
         rotation.restoreFactoryDefaults();
-        rotationPID = new GenericPID(rotation,ControlType.kPosition , .025);
-        rotationPID.setRatio(ROTATION_RATIO);
-        //rotationPID.setInputRange(0,80);        
+        rotation.getEncoder().setPositionConversionFactor(ROTATION_RATIO);
+        rotationPID = new PIDController(.025, 0, 0);
+        rotationPID.setTolerance(1);
 
         rotationFollower = new CANSparkMax(rotationFollowerId, MotorType.kBrushless);
         rotationFollower.restoreFactoryDefaults();
@@ -47,9 +47,9 @@ public class Arm {
 
         telescope = new CANSparkMax(telescopeId, MotorType.kBrushless);
         telescope.restoreFactoryDefaults();
-        telescopePID = new GenericPID(telescope, ControlType.kPosition, .025);
-        telescopePID.setRatio(TELESCOPE_RATIO);
-        //telescopePID.setInputRange(0,17); 
+        telescope.getEncoder().setPositionConversionFactor(TELESCOPE_RATIO);
+        telescopePID = new PIDController(.025, 0, 0);
+        telescopePID.setTolerance(.15);
         
         telescopeFollower = new CANSparkMax(telescopeFollowerId, MotorType.kBrushless);
         telescopeFollower.restoreFactoryDefaults();
@@ -58,47 +58,63 @@ public class Arm {
         slider = new CANSparkMax(sliderId, MotorType.kBrushless);
         slider.restoreFactoryDefaults();
         slider.setInverted(true);
-        sliderPID = new GenericPID(slider, ControlType.kPosition, .035);
-        sliderPID.setRatio(SLIDER_RATIO);
-        //sliderPID.setInputRange(0,14); 
+        slider.getEncoder().setPositionConversionFactor(SLIDER_RATIO);
+        sliderPID = new PIDController(.035, 0, 0);
+        sliderPID.setTolerance(.15);
 
     }
 
     // Getters
-    public CANSparkMax getRotationMotor(){ return rotation; }
+    public CANSparkMax getRotationMotor() { return rotation; }
+    public PIDController getRotationPid() { return rotationPID; }
+    public double getRotationPos() { return rotation.getEncoder().getPosition(); }
+    public boolean rotationAtTarget() { return rotationPID.atSetpoint(); }
+
     public CANSparkMax getTelescopeMotor() { return telescope; }
+    public PIDController getTelescopePid() { return telescopePID; }
+    public double getTelescopePos() { return telescope.getEncoder().getPosition(); }
+    public boolean telescopeAtTarget() { return telescopePID.atSetpoint(); }
+
     public CANSparkMax getSliderMotor() { return slider; }
-    public GenericPID getRotationPid(){ return rotationPID; }
-    public GenericPID getTelescopePid(){ return telescopePID; }
-    public GenericPID getSliderPid() { return sliderPID; }
+    public PIDController getSliderPid() { return sliderPID; }
+    public double getSliderPos() { return slider.getEncoder().getPosition(); }
+    public boolean sliderAtTarget() { return sliderPID.atSetpoint(); }
+
+    public boolean atTarget() {
+        return rotationAtTarget()
+            && telescopeAtTarget()
+            && sliderAtTarget();
+    }
     public ArmState getCurrentState() { return currentState; }
 
     /** Rotates the arm to a specific position 
      * @param target The target position in degrees */
     public void rotationGoTo(double target){
-        rotationPID.activate(target);
+        double pidOut = rotationPID.calculate(getRotationPos(), target);
+        rotation.set(pidOut);
     }  
     /** Extends arm to a specific length 
      *  @param target The target length in inches */
     public void telescopeGoTo(double target){    
-        telescopePID.activate(target);
+        double pidOut = telescopePID.calculate(getTelescopePos(), target);
+        telescope.set(pidOut);
     }
     /** Slides arm to a specific position on the chassis
      *  @param target The target position in inches */
     public void sliderGoTo(double target){
-        sliderPID.activate(target);
+        double pidOut = sliderPID.calculate(getSliderPos(), target);
+        slider.set(pidOut);
     }
 
-    /**  */
+    /** Send the arm to a target state and update the state
+     *  @param preset The state to go to
+     */
     public void goTo(ArmState preset) {
-        currentState = changeState(preset);
+        currentState = preset;
 
-        switch(currentState) {
+        switch(preset) {
             case ZERO:
                 zeroPosition();
-                break;
-            case BALANCE:
-                balancePosition();
                 break;
             case INTERMEDIATE:
                 intermediatePosition();
@@ -123,11 +139,6 @@ public class Arm {
         rotationGoTo(0);
         telescopeGoTo(0);
         sliderGoTo(0);
-    }
-
-    /** Moves the arm to the most balanced postition */
-    public void balancePosition(){
-          
     }
 
     /** Move the arm to an intermediate position that 
@@ -174,31 +185,5 @@ public class Arm {
         rotationGoTo(rotation);
         telescopeGoTo(tele);
         sliderGoTo(slider);
-    }
-
-    /** Handles situations where the arm will collide with the robot's bumpers 
-     * 
-     * @param targetState The state the arm wants to go to
-     * @return An {@link ArmState intermediate state} if the arm will collide.
-     *         The target {@link ArmState state} otherwise */
-    private ArmState changeState(ArmState targetState){
-        return willConflict(targetState)
-            ? ArmState.INTERMEDIATE : targetState;
-    }
-
-    /** Compares the current state to the target to see if there will be a
-     *  collision between the arm and the bumper of the robot
-     * 
-     *  @param targetState The state the arm wants to go to
-     *  @return Whether a collision will occur */
-    private boolean willConflict(ArmState targetState) {
-        if((currentState == ArmState.ZERO || currentState == ArmState.BALANCE)
-        && (targetState == ArmState.PICKUP_FLOOR))
-            return true;
-        else if((targetState == ArmState.ZERO || targetState == ArmState.BALANCE)
-        && (currentState == ArmState.PICKUP_FLOOR))    
-            return true;
-        else
-            return false;
     }
 }

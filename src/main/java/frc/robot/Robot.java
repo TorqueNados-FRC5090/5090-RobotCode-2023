@@ -1,29 +1,30 @@
 package frc.robot;
 
 // Import Constants
-import static frc.robot.Constants.ArmIDs.ROTATION_FOLLOWER_ID;
-import static frc.robot.Constants.ArmIDs.ROTATION_ID;
-import static frc.robot.Constants.ArmIDs.SLIDER_ID;
-import static frc.robot.Constants.ArmIDs.TELESCOPE_FOLLOWER_ID;
-import static frc.robot.Constants.ArmIDs.TELESCOPE_ID;
+import static frc.robot.Constants.ArmIDs.*;
+import frc.robot.Constants.ArmConstants.ArmState;
 import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
 
 // Camera imports
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-// Command imports
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-// Misc imports
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.ArmConstants.ArmState;
-import frc.robot.misc_subclasses.Dashboard;
-import frc.robot.misc_subclasses.Limelight;
+
 // Subsystem and subclass imports
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
+import frc.robot.misc_subclasses.Dashboard;
+import frc.robot.misc_subclasses.Limelight;
+
+// Command imports
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+// Misc imports
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
+
 
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;
@@ -33,6 +34,7 @@ public class Robot extends TimedRobot {
 
     // Subsystem and subclass objects
     private Arm arm;
+    private Claw claw;
     private Dashboard dashboard;
     private Limelight limelight;
     
@@ -40,13 +42,6 @@ public class Robot extends TimedRobot {
     private XboxController operatorController;
     private Compressor compressor;
     private double autonStartTime;
-
-    // Used to test the arm
-    private double rotationPos;
-    private double sliderPos;
-    private double telescopePos;
-    private int prev;
-    private int i;
 
     // This function is run when the robot is first started up and should be used
     // for any initialization code.
@@ -59,10 +54,10 @@ public class Robot extends TimedRobot {
         robotContainer = new RobotContainer();
         operatorController = new XboxController(OPERATOR_PORT);
         arm = new Arm(ROTATION_ID, ROTATION_FOLLOWER_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
+        claw = robotContainer.getClaw();
         limelight = new Limelight();
         dashboard = new Dashboard();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-        
     }
 
     // This function is called once at the start of auton
@@ -83,7 +78,7 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() { 
         double currentTime = Timer.getFPGATimestamp() - autonStartTime;
         if (currentTime > 3 && currentTime < 3.2)
-            robotContainer.getClaw().open();
+            claw.open();
 
         if (currentTime > 4 && currentTime < 4.2)
             arm.goTo(ArmState.ZERO);
@@ -144,25 +139,43 @@ public class Robot extends TimedRobot {
         dashboard.printArmData(arm);
 
         // Run any functions that always need to be running
-        CommandScheduler.getInstance().run();
         limelight.updateLimelightTracking();
+        CommandScheduler.getInstance().run();
     }
 
     @Override
     public void testPeriodic() {
-        if(operatorController.getAButton())
-            arm.getSliderMotor().set(.15);
-        else if(operatorController.getBButton())
-            arm.getSliderMotor().set(-.15);
-        else
-            arm.getSliderMotor().set(0); 
 
+        /*     ___________________________
+         *    |  __0__                    |
+         *    | |  |  |  (1) [3] [4] (7)  |
+         *    | |_/_\_|  (2) [5] [6] (8)  |
+         *    |___________________________|
+         * 
+         *    1 and 2 control claw
+         *    3 and 4 control telescope
+         *    5 and 6 control slider
+         *    7 and 8 control rotation
+         */
+        
+        if (operatorController.getLeftBumper())
+            claw.open();
+        else if (operatorController.getRightTriggerAxis() > .5)
+            claw.close();
+            
         if(operatorController.getXButton())
             arm.getTelescopeMotor().set(.1);
         else if(operatorController.getYButton())
             arm.getTelescopeMotor().set(-.1);
         else
             arm.getTelescopeMotor().set(0); 
+
+        if(operatorController.getAButton())
+            arm.getSliderMotor().set(.15);
+        else if(operatorController.getBButton())
+            arm.getSliderMotor().set(-.15);
+        else
+            arm.getSliderMotor().set(0); 
 
         if(operatorController.getRightBumper())
             arm.getRotationMotor().set(.05);
@@ -171,81 +184,4 @@ public class Robot extends TimedRobot {
         else
             arm.getRotationMotor().set(0); 
     }
-
-
-
-
-/* --------------- OLD TEST MODE --------------- */
-    /*
-
-    //----------- test functionality below -----------
-    // This function is called once at the start of a test
-    @Override
-    public void testInit() {
-        // Init values for arm testing
-        rotationPos = 0;
-        telescopePos = 0;
-        sliderPos = 0;
-        i = 0;
-        prev = -1;
-    }
-
-    // This function is called every 20ms while testing
-    @Override
-    public void testPeriodic() {
-        // Get the state of the dpad
-        int curr = operatorController.getPOV();
-    
-        // Arm's telescope is controlled by the bumpers
-        if (operatorController.getLeftBumperPressed())
-            arm.telescopeGoTo(--telescopePos);
-        else if (operatorController.getRightBumperPressed())
-            arm.telescopeGoTo(++telescopePos);
-
-        // Arm's slider is controlled by left and right dpad
-        if (curr == 270 && curr != prev) {
-            sliderPos -= .5;
-            arm.sliderGoTo(sliderPos);
-        }
-        else if (curr == 90 && curr != prev){
-            sliderPos += .5;
-            arm.sliderGoTo(sliderPos);
-        }
-        
-        // Arm's rotation is controlled by up and down dpad
-        if (curr == 180 && curr != prev)
-            arm.rotationGoTo(--rotationPos);
-        else if (curr == 0 && curr != prev)
-            arm.rotationGoTo(++rotationPos);
-
-        // Pressing B resets the arm to where it was when the robot was powered on
-        if (operatorController.getBButtonPressed())
-            arm.goTo(ArmState.ZERO);
-
-        // Testing configuration button
-        if (operatorController.getAButtonPressed()) {
-            //arm.rotationGoTo(50);
-            //rotationPos = 50;
-            arm.goTo(ArmState.PICKUP_FLOOR);
-        }
-
-        // Control the claw in test mode
-        if (operatorController.getStartButtonPressed())
-            robotContainer.getClaw().open();
-        else if (operatorController.getBackButtonPressed())
-            robotContainer.getClaw().close();
-
-        // Print the arm positions every 2 sec
-        if(i == 100) {
-            System.out.println( "Rotation Position : " + arm.getRotationPid().getRatioPos());
-            System.out.println( "Telescope Position : " + arm.getTelescopePid().getRatioPos());
-            System.out.println( "Slider Position : " + arm.getSliderPid().getRatioPos());
-            i = 0;
-        }
-        i++;
-        
-        // The dpad's previous value is updated for debounce
-        prev = curr; 
-    }
-    */
 }

@@ -3,7 +3,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Math Imports
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
@@ -99,8 +98,8 @@ public class Drivetrain extends SubsystemBase {
         new PIDController(X_CONTROLLER_P, 0, 0);
     private PIDController yController =
         new PIDController(Y_CONTROLLER_P, 0, 0);
-    private ProfiledPIDController turnController =
-        new ProfiledPIDController(THETA_CONTROLLER_P, 0, 0, THETA_CONTROLLER_CONSTRAINTS);
+    private PIDController turnController =
+        new PIDController(THETA_CONTROLLER_P, 0, 0);
     
     /** Constructs a drivetrain {@link SubsystemBase subsystem} */
     public Drivetrain() {
@@ -159,9 +158,9 @@ public class Drivetrain extends SubsystemBase {
     /** @return The PID controller used to track movement along the Y axis */
     public PIDController getYPidController() { return yController; }
     /** @return The PID controller used to track rotation */
-    public ProfiledPIDController getThetaPidController() { return turnController; }
+    public PIDController getThetaPidController() { return turnController; }
     /** @return The PID controller used to track rotation */
-    public ProfiledPIDController getTurnPidController() { return turnController; }
+    public PIDController getTurnPidController() { return turnController; }
     
     // Methods related to field orientation
     /** @return Whether or not the robot is in field oriented mode */
@@ -206,6 +205,18 @@ public class Drivetrain extends SubsystemBase {
             swerveModules.get(ModulePosition.REAR_RIGHT).getState()
         };
     }
+
+    /** Set the state of each module at once
+     *  @param states An array containing the desired {@link SwerveModuleState state} of each module */
+    public void setModuleStates(SwerveModuleState[] states) {
+        // Normalize output if any of the modules would be instructed to go faster than possible
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_TRANSLATION_SPEED);
+
+        // Send instructions to each module
+        for (SwerveModule module : swerveModules.values())
+            module.setDesiredState(states[module.getModuleNumber()], true);
+    }
+
     /** @return An array containing the current {@link SwerveModulePosition position} of each module */
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {

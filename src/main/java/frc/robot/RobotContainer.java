@@ -4,7 +4,10 @@ import static frc.robot.Constants.ControllerPorts.DRIVER_PORT;
 import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonCommandsContainer;
 import frc.robot.commands.DriveCommand;
@@ -18,9 +21,12 @@ public class RobotContainer {
     private AutonCommandsContainer auton = new AutonCommandsContainer(drivetrain);
     private Claw claw = new Claw(CLAW_LASER_PORT);
     private XboxController driverController = new XboxController(DRIVER_PORT);
+    private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();
 
     /** Constructs a RobotContainer */
     public RobotContainer() {
+        initChooser();
+
         // If the drivetrain is not busy, drive using joysticks
         drivetrain.setDefaultCommand(
             new DriveCommand(drivetrain, 
@@ -33,6 +39,15 @@ public class RobotContainer {
         lockBtn.whileTrue(new LockDrivetrain(drivetrain));
     }
 
+    /** Initialize the auton selector on the dashboard */
+    private void initChooser() {
+        autonChooser.setDefaultOption("Do Nothing", new WaitCommand(0));
+        autonChooser.addOption("Cone Cube No Bump", auton.coneCubeNoBumpAuto());
+
+        SmartDashboard.putData("Auton Selector", autonChooser);
+    }
+
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
@@ -40,7 +55,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // Auton for going over the line
-        return auton.coneCubeNoBumpAuto();
+        return autonChooser.getSelected();
     }
 
     /** @return The robot's drivetrain */

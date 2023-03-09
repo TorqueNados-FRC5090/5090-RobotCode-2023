@@ -105,6 +105,22 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         robotContainer.teleopPeriodic();
 
+        /*     ___________________________
+         *    |  __0__                    |
+         *    | |  |  |  (1) [3] [4] (5)  |
+         *    | |_/_\_|  (2) [6] [x] (x)  |
+         *    |___________________________|
+         * 
+         *    1 - Pickup human
+         *    2 - Pickup floor
+         * 
+         *    3 - Dropoff low / Intermediate
+         *    4 - Dropoff medium
+         *    5 - Dropoff high
+         *    
+         *    6 - Zero
+         */
+
         // Pressing Right bumper makes the arm go to the preset of the drop of high position
         if (operatorController.getRightBumper())
             arm.setTarget(ArmState.DROPOFF_HIGH);

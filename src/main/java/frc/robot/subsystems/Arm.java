@@ -89,9 +89,7 @@ public class Arm extends SubsystemBase {
     }
     public ArmState getCurrentState() { return currentState; }
 
-    /** Send the arm to a target state and update the state
-     *  @param preset The state to go to
-     */
+    /** Move the arm to one of its presets */
     public void setTarget(ArmState preset) {
         currentState = preset;
 

@@ -14,7 +14,6 @@ public class LockDrivetrain extends CommandBase {
      * @param drivetrain The robot's drivetrain
     */
     public LockDrivetrain(Drivetrain drivetrain) {
-
         // Initialize internal variables with values passed through params
         this.drivetrain = drivetrain;
         

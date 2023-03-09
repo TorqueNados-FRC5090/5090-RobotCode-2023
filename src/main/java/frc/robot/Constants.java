@@ -70,7 +70,6 @@ public final class Constants {
         /** Enum representing the preset arm positions */
         public enum ArmState {
             ZERO,           // PICKUP_FLOOR, DROPOFF_LOW
-            BALANCE,        // PICKUP_FLOOR, DROPOFF_LOW
             INTERMEDIATE,
             PICKUP_FLOOR,   // ZERO, BALANCE
             PICKUP_HUMAN,
@@ -95,12 +94,20 @@ public final class Constants {
         public static final double MAX_DRIVE = 0.5;            // Simple speed limit so we don't drive too fast
     }
 
-    /** Turning a module to its offset will point it forward */
+    /** Turning a module to absolute 0 minus its offset will point it forward */
     public static final class SwerveModuleOffsets {
         public static final double FL_OFFSET = 312;
         public static final double FR_OFFSET = 87;
         public static final double RL_OFFSET = 250;
         public static final double RR_OFFSET = 198;
+    }
+
+    /** The offsets for the workhorse chassis */
+    public static final class WorkhorseSwerveModuleOffsets {
+        public static final double FL_OFFSET = 120;
+        public static final double FR_OFFSET = 188;
+        public static final double RL_OFFSET = 253;
+        public static final double RR_OFFSET = 135;
     }
 
     /** Whether or not each swerve component should be inverted/reversed */

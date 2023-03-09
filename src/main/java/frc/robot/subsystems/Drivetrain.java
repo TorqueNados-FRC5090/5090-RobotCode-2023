@@ -93,17 +93,23 @@ public class Drivetrain extends SubsystemBase {
             getModulePositions(),
             new Pose2d());
 
-    /** Used for auton to automatically adjust for inaccuracies in the robot's movement */
+    /** Used in auton to automatically adjust for inaccuracies in the robot's movement along the X axis */
     private PIDController xController =
         new PIDController(X_CONTROLLER_P, 0, 0);
+    /** Used in auton to automatically adjust for inaccuracies in the robot's movement along the Y axis */
     private PIDController yController =
         new PIDController(Y_CONTROLLER_P, 0, 0);
+    /** Used in auton to automatically adjust for inaccuracies in the robot's rotation
+     *  Used in teleop to rotate the robot to a specific heading */
     private PIDController turnController =
         new PIDController(THETA_CONTROLLER_P, 0, 0);
     
     /** Constructs a drivetrain {@link SubsystemBase subsystem} */
     public Drivetrain() {
         gyro.reset();
+
+        turnController.setTolerance(1); // Allow for 1 degree of rotational error
+        turnController.enableContinuousInput(-180, 180); // -180 and 180 are the same heading
     }
 
     /** 

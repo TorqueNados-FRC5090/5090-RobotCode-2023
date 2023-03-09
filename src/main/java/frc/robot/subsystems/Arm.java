@@ -89,16 +89,13 @@ public class Arm {
         sliderPID.activate(target);
     }
 
-    /**  */
+    /** Move the arm to one of its presets */
     public void goTo(ArmState preset) {
-        currentState = changeState(preset);
+        currentState = preset;
 
         switch(currentState) {
             case ZERO:
                 zeroPosition();
-                break;
-            case BALANCE:
-                balancePosition();
                 break;
             case INTERMEDIATE:
                 intermediatePosition();
@@ -123,11 +120,6 @@ public class Arm {
         rotationGoTo(0);
         telescopeGoTo(0);
         sliderGoTo(0);
-    }
-
-    /** Moves the arm to the most balanced postition */
-    public void balancePosition(){
-          
     }
 
     /** Move the arm to an intermediate position that 
@@ -174,31 +166,5 @@ public class Arm {
         rotationGoTo(rotation);
         telescopeGoTo(tele);
         sliderGoTo(slider);
-    }
-
-    /** Handles situations where the arm will collide with the robot's bumpers 
-     * 
-     * @param targetState The state the arm wants to go to
-     * @return An {@link ArmState intermediate state} if the arm will collide.
-     *         The target {@link ArmState state} otherwise */
-    private ArmState changeState(ArmState targetState){
-        return willConflict(targetState)
-            ? ArmState.INTERMEDIATE : targetState;
-    }
-
-    /** Compares the current state to the target to see if there will be a
-     *  collision between the arm and the bumper of the robot
-     * 
-     *  @param targetState The state the arm wants to go to
-     *  @return Whether a collision will occur */
-    private boolean willConflict(ArmState targetState) {
-        if((currentState == ArmState.ZERO || currentState == ArmState.BALANCE)
-        && (targetState == ArmState.PICKUP_FLOOR))
-            return true;
-        else if((targetState == ArmState.ZERO || targetState == ArmState.BALANCE)
-        && (currentState == ArmState.PICKUP_FLOOR))    
-            return true;
-        else
-            return false;
     }
 }

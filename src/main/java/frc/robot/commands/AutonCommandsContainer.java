@@ -27,4 +27,34 @@ public class AutonCommandsContainer {
             drivetrain::setModuleStates,
             drivetrain);
     }
+
+    public Command cubeCubeNoBumpAuto() {
+        PathPlannerTrajectory trajectory = PathPlanner.loadPath("CubeCubeNoBumpAuto", 4.5, 4.5, false);
+
+        //PPSwerveControllerCommand pathFollowerCommand = new PPSwerveControllerCommand(
+        return new PPSwerveControllerCommand(
+            trajectory, 
+            drivetrain::getPoseMeters, 
+            SWERVE_KINEMATICS, 
+            drivetrain.getXPidController(), 
+            drivetrain.getYPidController(), 
+            drivetrain.getThetaPidController(),
+            drivetrain::setModuleStates,
+            drivetrain);
+    }
+
+    public Command coneCubeBumpAuto() {
+        PathPlannerTrajectory trajectory = PathPlanner.loadPath("ConeCubeBumpAuto", 4.5, 4.5, false);
+
+        //PPSwerveControllerCommand pathFollowerCommand = new PPSwerveControllerCommand(
+        return new PPSwerveControllerCommand(
+            trajectory, 
+            drivetrain::getPoseMeters, 
+            SWERVE_KINEMATICS, 
+            drivetrain.getXPidController(), 
+            drivetrain.getYPidController(), 
+            drivetrain.getThetaPidController(),
+            drivetrain::setModuleStates,
+            drivetrain);
+    }
 }

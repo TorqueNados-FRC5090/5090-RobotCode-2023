@@ -42,7 +42,9 @@ public class RobotContainer {
     /** Initialize the auton selector on the dashboard */
     private void initChooser() {
         autonChooser.setDefaultOption("Do Nothing", new WaitCommand(0));
-        autonChooser.addOption("Cone Cube No Bump", auton.coneCubeNoBumpAuto());
+        autonChooser.addOption("Cone Cube with No Bump", auton.coneCubeNoBumpAuto());
+        autonChooser.addOption("Cube Cube with No Bump", auton.cubeCubeNoBumpAuto());
+        autonChooser.addOption("Cone Cube with Bump", auton.coneCubeBumpAuto());
 
         SmartDashboard.putData("Auton Selector", autonChooser);
     }

@@ -70,7 +70,6 @@ public final class Constants {
         /** Enum representing the preset arm positions */
         public enum ArmState {
             ZERO,           // PICKUP_FLOOR, DROPOFF_LOW
-            BALANCE,        // PICKUP_FLOOR, DROPOFF_LOW
             INTERMEDIATE,
             PICKUP_FLOOR,   // ZERO, BALANCE
             PICKUP_HUMAN,

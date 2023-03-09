@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
 
         // Start by lifting the arm to dropoff position
         if (currentTime < .2)
-            arm.goTo(ArmState.DROPOFF_MED);
+            arm.setTarget(ArmState.DROPOFF_MED);
 
         // Drop the preloaded piece
         if (currentTime > 2 && currentTime < 2.2)
@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
 
         // Return the arm to zero
         if (currentTime > 3 && currentTime < 3.2)
-            arm.goTo(ArmState.ZERO);
+            arm.setTarget(ArmState.ZERO);
     }
     
     // This function is called once at the start of teleop
@@ -107,27 +107,27 @@ public class Robot extends TimedRobot {
 
         // Pressing Right bumper makes the arm go to the preset of the drop of high position
         if (operatorController.getRightBumper())
-            arm.goTo(ArmState.DROPOFF_HIGH);
+            arm.setTarget(ArmState.DROPOFF_HIGH);
 
         // Pressing Y makes the arm go to the preset of the drop of medium position
         if (operatorController.getYButtonPressed())
-            arm.goTo(ArmState.DROPOFF_MED);
+            arm.setTarget(ArmState.DROPOFF_MED);
 
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
         if (operatorController.getXButtonPressed())
-            arm.goTo(ArmState.INTERMEDIATE);
+            arm.setTarget(ArmState.INTERMEDIATE);
 
         // Pressing A makes the arm go to the preset of the zero position
         if (operatorController.getAButtonPressed())
-            arm.goTo(ArmState.ZERO);
+            arm.setTarget(ArmState.ZERO);
 
         // Pressing Left bumper makes the arm go to the preset of the human pickup position
         if (operatorController.getLeftBumperPressed())
-            arm.goTo(ArmState.PICKUP_HUMAN);
+            arm.setTarget(ArmState.PICKUP_HUMAN);
         
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
         if (operatorController.getLeftTriggerAxis() > 0)
-            arm.goTo(ArmState.PICKUP_FLOOR);
+            arm.setTarget(ArmState.PICKUP_FLOOR);
     }
 
     // This function is called every 20ms while the robot is enabled

@@ -37,6 +37,20 @@ public class RobotContainer {
 
         Trigger lockBtn = new Trigger(() -> driverController.getXButton());
         lockBtn.whileTrue(new LockDrivetrain(drivetrain));
+
+        Trigger lockHeadingZeroBtn = new Trigger(() -> driverController.getRightTriggerAxis() > .2);
+        lockHeadingZeroBtn.whileTrue(
+            new DriveCommand(drivetrain, 
+            () -> driverController.getLeftX(), 
+            () -> driverController.getLeftY(),
+            () -> drivetrain.head(0)));
+        
+        Trigger lockHeading180Btn = new Trigger(() -> driverController.getLeftTriggerAxis() > .2);
+        lockHeading180Btn.whileTrue(
+            new DriveCommand(drivetrain, 
+            () -> driverController.getLeftX(), 
+            () -> driverController.getLeftY(),
+            () -> drivetrain.head(180)));
     }
 
     /** Initialize the auton selector on the dashboard */

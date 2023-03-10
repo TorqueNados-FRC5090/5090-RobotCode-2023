@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.*;
 import java.util.Map;
 import java.util.HashMap;
@@ -18,7 +19,7 @@ import frc.robot.Constants.SwerveConstants.ModulePosition;
 import frc.robot.Constants.SwerveConstants;
 import static frc.robot.Constants.SwerveIDs.*;
 import static frc.robot.Constants.SwerveInversions.*;
-import static frc.robot.Constants.WorkhorseSwerveModuleOffsets.*;
+import static frc.robot.Constants.SwerveModuleOffsets.*;
 import static frc.robot.Constants.SwerveConstants.*;
 
 /** This class represents the drivetrain on the robot */
@@ -81,7 +82,7 @@ public class Drivetrain extends SubsystemBase {
     private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
     /** Used in teleop to lock heading */
-    private PIDController headingController = new PIDController(0, 0, 0);
+    private PIDController headingController = new PIDController(.1, 0, .0005);
 
     /** While the robot is in field centric mode, forward is a defined direction.
      *  Conversely, if the robot is not in field centric mode, it is robot centric.
@@ -100,7 +101,7 @@ public class Drivetrain extends SubsystemBase {
     public Drivetrain() {
         gyro.reset();
 
-        headingController.setTolerance(1); // Allow for 1 degree of rotational error
+        headingController.setTolerance(2); // Allow for 2 degrees of rotational error
         headingController.enableContinuousInput(-180, 180); // -180 and 180 are the same heading
     }
 
@@ -136,6 +137,7 @@ public class Drivetrain extends SubsystemBase {
             module.setDesiredState(moduleStates[module.getModuleNumber()], isOpenLoop);
     }
 
+    // Misc getters
     /** @return The current direction the robot is facing in degrees */
     public double getHeadingDegrees() { return -Math.IEEEremainder(gyro.getAngle(), 360); }
     /** @return The current direction the robot is facing as a {@link Rotation2d} object */
@@ -150,8 +152,11 @@ public class Drivetrain extends SubsystemBase {
     /** @param position The {@link ModulePosition position} of the module
      *  @return The {@link SwerveModule swerve module} at that position */
     public SwerveModule getSwerveModule(ModulePosition position) { return swerveModules.get(ModulePosition.FRONT_LEFT); }
-     /** @return The PID controller used to lock heading*/
-     public PIDController getTurnPidController() { return headingController; }
+
+    /** @return The PID controller used to lock heading*/
+    public PIDController getHeadingPIDController() { return headingController; }
+    /** @return Whether the heading PID controller has reached its setpoint */
+    public boolean headingPIDAtTarget() { return headingController.atSetpoint(); }
     
     // Methods related to field orientation
     /** @return Whether or not the robot is in field oriented mode */
@@ -164,6 +169,15 @@ public class Drivetrain extends SubsystemBase {
     public void setRobotCentric(boolean isRobotCentric) { this.isFieldCentric = !isRobotCentric; }
     /** Sets the robot to field centric if currently robot centric and vice versa */
     public void toggleFieldCentric() { this.isFieldCentric = !this.isFieldCentric; }
+
+    /** Turn the robot to a target heading 
+     *  @param degrees The target heading in degrees
+     *  @return A rotational instruction between -1 and 1
+    */
+    public double head(double degrees) { 
+        double pidOut = headingController.calculate(getHeadingDegrees(), degrees);
+        return -1 * MathUtil.clamp(pidOut, -1, 1);
+    }
 
     /** Sets the wheels of the robot into an X shape for anti-defense */
     public void lock() {
@@ -251,7 +265,7 @@ public class Drivetrain extends SubsystemBase {
             getModulePositions(),
             new Pose2d());
     }
-    
+
     @Override // Called every 20ms
     public void periodic() {
         updateOdometry();

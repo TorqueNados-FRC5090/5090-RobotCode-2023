@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.AutonCommandsContainer;
+import frc.robot.commands.AutonContainer;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.LockDrivetrain;
 import frc.robot.subsystems.Claw;
@@ -18,7 +18,7 @@ import frc.robot.subsystems.Drivetrain;
 /** This is where the drivetrain will be controlled */
 public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
-    private AutonCommandsContainer auton = new AutonCommandsContainer(drivetrain);
+    private AutonContainer auton = new AutonContainer(drivetrain);
     private Claw claw = new Claw(CLAW_LASER_PORT);
     private XboxController driverController = new XboxController(DRIVER_PORT);
     private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();

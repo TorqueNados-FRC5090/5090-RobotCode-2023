@@ -18,7 +18,7 @@ import frc.robot.Constants.SwerveConstants.ModulePosition;
 import frc.robot.Constants.SwerveConstants;
 import static frc.robot.Constants.SwerveIDs.*;
 import static frc.robot.Constants.SwerveInversions.*;
-import static frc.robot.Constants.SwerveModuleOffsets.*;
+import static frc.robot.Constants.WorkhorseSwerveModuleOffsets.*;
 import static frc.robot.Constants.SwerveConstants.*;
 
 /** This class represents the drivetrain on the robot */
@@ -80,6 +80,9 @@ public class Drivetrain extends SubsystemBase {
     /** The gyro is used to help keep track of where the robot is facing */
     private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
+    /** Used in teleop to lock heading */
+    private PIDController headingController = new PIDController(0, 0, 0);
+
     /** While the robot is in field centric mode, forward is a defined direction.
      *  Conversely, if the robot is not in field centric mode, it is robot centric.
      *  While the robot is in robot centric mode, forward is whichever direction the robot is facing. */
@@ -92,24 +95,13 @@ public class Drivetrain extends SubsystemBase {
             getHeadingRotation2d(),
             getModulePositions(),
             new Pose2d());
-
-    /** Used in auton to automatically adjust for inaccuracies in the robot's movement along the X axis */
-    private PIDController xController =
-        new PIDController(X_CONTROLLER_P, 0, 0);
-    /** Used in auton to automatically adjust for inaccuracies in the robot's movement along the Y axis */
-    private PIDController yController =
-        new PIDController(Y_CONTROLLER_P, 0, 0);
-    /** Used in auton to automatically adjust for inaccuracies in the robot's rotation
-     *  Used in teleop to rotate the robot to a specific heading */
-    private PIDController turnController =
-        new PIDController(THETA_CONTROLLER_P, 0, 0);
     
     /** Constructs a drivetrain {@link SubsystemBase subsystem} */
     public Drivetrain() {
         gyro.reset();
 
-        turnController.setTolerance(1); // Allow for 1 degree of rotational error
-        turnController.enableContinuousInput(-180, 180); // -180 and 180 are the same heading
+        headingController.setTolerance(1); // Allow for 1 degree of rotational error
+        headingController.enableContinuousInput(-180, 180); // -180 and 180 are the same heading
     }
 
     /** 
@@ -158,15 +150,8 @@ public class Drivetrain extends SubsystemBase {
     /** @param position The {@link ModulePosition position} of the module
      *  @return The {@link SwerveModule swerve module} at that position */
     public SwerveModule getSwerveModule(ModulePosition position) { return swerveModules.get(ModulePosition.FRONT_LEFT); }
-
-    /** @return The PID controller used to track movement along the X axis */
-    public PIDController getXPidController() { return xController; }
-    /** @return The PID controller used to track movement along the Y axis */
-    public PIDController getYPidController() { return yController; }
-    /** @return The PID controller used to track rotation */
-    public PIDController getThetaPidController() { return turnController; }
-    /** @return The PID controller used to track rotation */
-    public PIDController getTurnPidController() { return turnController; }
+     /** @return The PID controller used to lock heading*/
+     public PIDController getTurnPidController() { return headingController; }
     
     // Methods related to field orientation
     /** @return Whether or not the robot is in field oriented mode */
@@ -250,15 +235,22 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
-     /**resets the odometry of the modules */
-     public void resetOdometry() {
+    /** Sets the odometry of the robot using a given pose
+     *  @param pose The pose of the robot */
+    public void setOdometry( Pose2d pose) {
+        odometry.resetPosition(
+            getHeadingRotation2d(),
+            getModulePositions(),
+            pose);
+    }
+
+    /** Resets the odometry of the robot */
+    public void resetOdometry() {
         odometry.resetPosition(
             getHeadingRotation2d(),
             getModulePositions(),
             new Pose2d());
     }
-
-
     
     @Override // Called every 20ms
     public void periodic() {

@@ -34,6 +34,8 @@ public class Dashboard {
     public void printBasicDrivetrainData(Drivetrain drivetrain) {
         SmartDashboard.putBoolean("Field Centric", drivetrain.isFieldCentric());
         SmartDashboard.putNumber("Robot Heading", drivetrain.getHeadingDegrees());
+
+        SmartDashboard.putString("Robot Pose", drivetrain.getPoseMeters().toString());
     }
 
     /**

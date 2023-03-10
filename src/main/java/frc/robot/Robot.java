@@ -3,6 +3,8 @@ package frc.robot;
 // Import Constants
 import static frc.robot.Constants.ArmIDs.*;
 import frc.robot.Constants.ArmConstants.ArmState;
+import frc.robot.commands.Head180;
+
 import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
 
 // Camera imports
@@ -95,6 +97,8 @@ public class Robot extends TimedRobot {
         // This makes sure that the autonomous command stops when teleop starts
         if (autonCommand != null)
             autonCommand.cancel();
+        
+        new Head180(robotContainer.getDrivetrain()).schedule();
 
         // Start the compressor
         compressor.enableDigital();

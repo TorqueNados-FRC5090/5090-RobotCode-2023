@@ -22,6 +22,7 @@ public class RobotContainer {
     private Claw claw = new Claw(CLAW_LASER_PORT);
     private XboxController driverController = new XboxController(DRIVER_PORT);
     private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();
+    private final SendableChooser<String> testAutonChooser = new SendableChooser<String>();
 
     /** Constructs a RobotContainer */
     public RobotContainer() {
@@ -37,6 +38,8 @@ public class RobotContainer {
 
         Trigger lockBtn = new Trigger(() -> driverController.getXButton());
         lockBtn.whileTrue(new LockDrivetrain(drivetrain));
+
+        SmartDashboard.putString("Auton", "");
     }
 
     /** Initialize the auton selector on the dashboard */
@@ -47,6 +50,14 @@ public class RobotContainer {
         autonChooser.addOption("Cone Cube with Bump", auton.coneCubeBumpAuto());
 
         SmartDashboard.putData("Auton Selector", autonChooser);
+
+        testAutonChooser.addOption("Straight", "TestPathStraight");
+        testAutonChooser.addOption("Reverse", "TestPathReverse");
+        testAutonChooser.addOption("Straight + Spin", "TestPathSpin");
+        testAutonChooser.addOption("Square pointing ahead", "TestPathSquareNoRotation");
+        testAutonChooser.addOption("Square while rotating", "TestPathSquareWithRotation");
+
+        SmartDashboard.putData("Test Auton Paths", testAutonChooser);
     }
 
 
@@ -57,7 +68,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // Auton for going over the line
-        return autonChooser.getSelected();
+        return auton.testAuto(testAutonChooser.getSelected(), 1, 1);
     }
 
     /** @return The robot's drivetrain */

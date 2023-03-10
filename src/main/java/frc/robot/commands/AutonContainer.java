@@ -87,4 +87,24 @@ public class AutonContainer {
             new InstantCommand(() -> drivetrain.setOdometry(trajectory.getInitialHolonomicPose())),
             pathFollowerCommand);
     }
+
+    /** Auton for bump side that scores a preloaded cone and a floor cube */
+    public Command testAuto(String autoName, double maxSpeed, double maxAccel) {
+        PathPlannerTrajectory trajectory = PathPlanner.loadPath(autoName, maxSpeed, maxAccel, false);
+
+        PPSwerveControllerCommand pathFollowerCommand = new PPSwerveControllerCommand(
+            trajectory, 
+            drivetrain::getPoseMeters, 
+            SWERVE_KINEMATICS, 
+            xController,
+            yController,
+            thetaController,
+            drivetrain::setModuleStates,
+            drivetrain);
+
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> drivetrain.resetHeading()),
+            new InstantCommand(() -> drivetrain.setOdometry(trajectory.getInitialHolonomicPose())),
+            pathFollowerCommand);
+    }
 }

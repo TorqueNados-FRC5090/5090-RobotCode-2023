@@ -11,7 +11,7 @@ public class DriveForward extends CommandBase{
    private double target;
    private double speed;
 
-   /**constructor
+   /** Constructs a new DriveForward command
     * @param drivetrain creates dependency on drive train
     * @param target creates a target that can be changed 
     * @param speed the percent speed to drive the robot

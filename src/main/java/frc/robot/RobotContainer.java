@@ -38,8 +38,6 @@ public class RobotContainer {
 
         Trigger lockBtn = new Trigger(() -> driverController.getXButton());
         lockBtn.whileTrue(new LockDrivetrain(drivetrain));
-
-        SmartDashboard.putString("Auton", "");
     }
 
     /** Initialize the auton selector on the dashboard */
@@ -48,6 +46,7 @@ public class RobotContainer {
         autonChooser.addOption("Cone Cube with No Bump", auton.coneCubeNoBumpAuto());
         autonChooser.addOption("Cube Cube with No Bump", auton.cubeCubeNoBumpAuto());
         autonChooser.addOption("Cone Cube with Bump", auton.coneCubeBumpAuto());
+        autonChooser.addOption("No Bump 3 Piece", auton.noBumpSide3PieceAuton());
 
         SmartDashboard.putData("Auton Selector", autonChooser);
 
@@ -67,8 +66,10 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        // Auton for going over the line
-        return auton.testAuto(testAutonChooser.getSelected(), 1, 1);
+        // For testing
+        //return auton.testAuto(testAutonChooser.getSelected(), 1, 1);
+
+        return autonChooser.getSelected();
     }
 
     /** @return The robot's drivetrain */

@@ -208,6 +208,13 @@ public class Drivetrain extends SubsystemBase {
             module.setDesiredState(states[module.getModuleNumber()], true);
     }
 
+    /** Set the state of each to 0,0 */
+    public void resetModuleStates() {
+        // Send instructions to each module
+        for (SwerveModule module : swerveModules.values())
+            module.setDesiredState(new SwerveModuleState(), true);
+    }
+
     /** @return An array containing the current {@link SwerveModulePosition position} of each module */
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {

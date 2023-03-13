@@ -3,7 +3,6 @@ package frc.robot;
 // Import Constants
 import static frc.robot.Constants.ArmIDs.*;
 import frc.robot.Constants.ArmConstants.ArmState;
-import frc.robot.commands.Head180;
 
 import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
 
@@ -21,7 +20,6 @@ import frc.robot.misc_subclasses.Limelight;
 // Command imports
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
 // Misc imports
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -98,8 +96,6 @@ public class Robot extends TimedRobot {
         if (autonCommand != null)
             autonCommand.cancel();
         
-        new Head180(robotContainer.getDrivetrain()).schedule();
-
         // Start the compressor
         compressor.enableDigital();
     }

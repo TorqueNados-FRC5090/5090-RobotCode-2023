@@ -1,21 +1,26 @@
 package frc.robot;
 
+// Import constants
 import static frc.robot.Constants.ControllerPorts.DRIVER_PORT;
 import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// Command imports
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonContainer;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.LockDrivetrain;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 
-/** This is where the drivetrain will be controlled */
+// Other imports
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+/** Handles everything command based */
 public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
     private AutonContainer auton = new AutonContainer(drivetrain);
@@ -41,17 +46,17 @@ public class RobotContainer {
 
         Trigger lockHeadingZeroBtn = new Trigger(() -> driverController.getRightTriggerAxis() > .2);
         lockHeadingZeroBtn.whileTrue(
-            new DriveCommand(drivetrain, 
+            new DriveWithHeading(drivetrain, 
             () -> driverController.getLeftX(), 
             () -> driverController.getLeftY(),
-            () -> drivetrain.head(0)));
+            0));
         
         Trigger lockHeading180Btn = new Trigger(() -> driverController.getLeftTriggerAxis() > .2);
         lockHeading180Btn.whileTrue(
-            new DriveCommand(drivetrain, 
+            new DriveWithHeading(drivetrain, 
             () -> driverController.getLeftX(), 
             () -> driverController.getLeftY(),
-            () -> drivetrain.head(180)));
+            180));
     }
 
     /** Initialize the auton selector on the dashboard */

@@ -35,7 +35,6 @@ public class Dashboard {
         SmartDashboard.putBoolean("Field Centric", drivetrain.isFieldCentric());
         SmartDashboard.putNumber("Robot Heading", drivetrain.getHeadingDegrees());
         SmartDashboard.putString("Robot Pose", drivetrain.getPoseMeters().toString());
-	    SmartDashboard.putBoolean("Heading Controller At Setpoint", drivetrain.headingPIDAtTarget());
     }
 
     /**

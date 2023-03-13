@@ -1,12 +1,20 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
-/** Drives the robot */
+/** Locks the wheels of the drivetrain into an X shape for anti-defense */
 public class LockDrivetrain extends CommandBase {
-    // Declare variables that will be initialized by the constructor
+    // Variable declaration
     private final Drivetrain drivetrain;
+    private final SwerveModuleState[] lockedStates = {
+        new SwerveModuleState(0, new Rotation2d(-45)),
+        new SwerveModuleState(0, new Rotation2d(45)),
+        new SwerveModuleState(0, new Rotation2d(-45)),
+        new SwerveModuleState(0, new Rotation2d(45))
+    };
 
     /** 
      * Constructs a LockDrivetrain command
@@ -14,7 +22,6 @@ public class LockDrivetrain extends CommandBase {
      * @param drivetrain The robot's drivetrain
     */
     public LockDrivetrain(Drivetrain drivetrain) {
-        // Initialize internal variables with values passed through params
         this.drivetrain = drivetrain;
         
         // Tell the CommandBase that this command uses the drivetrain
@@ -25,12 +32,11 @@ public class LockDrivetrain extends CommandBase {
     @Override
     public void initialize() {}
 
-    // Called every time the scheduler runs while the command is scheduled.
-    @Override
+    
+    @Override // Lock the drivetrain
     public void execute() {
-        drivetrain.lock();
+        drivetrain.setModuleStates(lockedStates);
     }
-
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {}

@@ -201,20 +201,6 @@ public class Drivetrain extends SubsystemBase {
     /** Sets the robot to field centric if currently robot centric and vice versa */
     public void toggleFieldCentric() { this.isFieldCentric = !this.isFieldCentric; }
 
-    /** Sets the wheels of the robot into an X shape for anti-defense */
-    public void lock() {
-        int[] lockPos = {-45,45,-45,45};
-        int i = 0;
-
-
-        for (SwerveModule module : swerveModules.values()) {
-            module.setDesiredState(
-                new SwerveModuleState(0, new Rotation2d(lockPos[i])),    
-                true);
-            i++;
-        }
-    }
-
     /** Resets the wheels of the robot to point forward */
     public void zeroWheels() { 
          for (SwerveModule module : swerveModules.values())

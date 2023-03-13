@@ -32,7 +32,7 @@ public class DriveForward extends CommandBase{
     @Override
     public void execute(){
         // Drive the robot at the defined speed and direction
-        drivetrain.drive(0, Math.abs(speed) * Math.signum(target), 0, true);
+        drivetrain.drive(0, Math.abs(speed) * Math.signum(target), 0);
         
         // Update the current distance traveled by the robot
         distance = drivetrain.getPoseMeters().getTranslation().getX();

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -21,6 +22,7 @@ import static frc.robot.Constants.SwerveIDs.*;
 import static frc.robot.Constants.SwerveInversions.*;
 import static frc.robot.Constants.SwerveModuleOffsets.*;
 import static frc.robot.Constants.SwerveConstants.*;
+import static frc.robot.Constants.DriveConstants.*;
 
 /** This class represents the drivetrain on the robot */
 public class Drivetrain extends SubsystemBase {
@@ -78,6 +80,12 @@ public class Drivetrain extends SubsystemBase {
                 ModulePosition.REAR_RIGHT,
                 rearRightModule));
 
+
+    // Declare and initialize the limiters used to slew instructions
+    private final SlewRateLimiter slewX = new SlewRateLimiter(TRANSLATION_SLEW);
+    private final SlewRateLimiter slewY = new SlewRateLimiter(TRANSLATION_SLEW);
+    private final SlewRateLimiter slewRot = new SlewRateLimiter(ROTATION_SLEW);
+
     /** The gyro is used to help keep track of where the robot is facing */
     private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
@@ -105,14 +113,49 @@ public class Drivetrain extends SubsystemBase {
         headingController.enableContinuousInput(-180, 180); // -180 and 180 are the same heading
     }
 
+
     /** 
      * Drives the robot
+     *  
+     * @param inputX The left/right translation instruction
+     * @param inputY The forward/back translation instruction
+     * @param inputRot The rotational instruction
+    */
+    public void drive(double inputX, double inputY, double inputRot) {
+        // If a translation input is between -.05 and .05, set it to 0
+        double deadbandedX = MathUtil.applyDeadband(Math.abs(inputX),
+            TRANSLATION_DEADBAND) * Math.signum(inputX);
+        double deadbandedY = MathUtil.applyDeadband(Math.abs(inputY),
+            TRANSLATION_DEADBAND) * Math.signum(inputY);
+
+        // If the rotation input is between -.1 and .1, set it to 0
+        double deadbandedRot = MathUtil.applyDeadband(Math.abs(inputRot),
+            ROTATION_DEADBAND) * Math.signum(inputRot);
+
+        // Square values after deadband while keeping original sign
+        deadbandedX = -Math.signum(deadbandedX) * Math.pow(deadbandedX, 2);
+        deadbandedY = -Math.signum(deadbandedY) * Math.pow(deadbandedY, 2);
+        deadbandedRot = -Math.signum(deadbandedRot) * Math.pow(deadbandedRot, 2);
+
+        // Apply a slew rate to the inputs, limiting the rate at which the robot changes speed
+        double slewedX = slewX.calculate(deadbandedX);
+        double slewedY = slewY.calculate(deadbandedY);
+        double slewedRot = slewRot.calculate(deadbandedRot);
+
+        // Send the processed output to the drivetrain
+        sendDrive(slewedX, slewedY, slewedRot, true);
+    }
+
+    /** 
+     * Sends instructions to the motors that drive the robot
      *  
      * @param translationX The left/right translation instruction
      * @param translationY The forward/back translation instruction
      * @param rotation The rotational instruction
+     * @param isOpenLoop True to control the driving motor via %power.
+     *                   False to control the driving motor via velocity-based PID.
     */
-    public void drive( double translationX, double translationY, double rotation, boolean isOpenLoop ) {
+    private void sendDrive( double translationX, double translationY, double rotation, boolean isOpenLoop ) {
         // Convert inputs from % to m/sec
         translationY *= MAX_TRANSLATION_SPEED;
         translationX *= MAX_TRANSLATION_SPEED;

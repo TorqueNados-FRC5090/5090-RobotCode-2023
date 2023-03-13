@@ -44,7 +44,7 @@ public class Head180 extends CommandBase {
         double slewedRot = slewRot.calculate(deadbandedRot);
 
         // Send the processed output to the drivetrain        
-        drivetrain.drive(0, 0, slewedRot, true);
+        drivetrain.drive(0, 0, slewedRot);
     }
 
     // Command ends when robot is done rotating

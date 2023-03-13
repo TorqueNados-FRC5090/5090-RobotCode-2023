@@ -33,7 +33,7 @@ public class DoNothing extends CommandBase {
     }
 
     @Override // Force the drivetrain do nothing
-    public void execute() { drivetrain.drive(0, 0, 0, true); }
+    public void execute() { drivetrain.drive(0, 0, 0); }
 
     @Override // Stop the timer
     public void end(boolean interrupted) {

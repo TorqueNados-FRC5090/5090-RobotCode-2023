@@ -3,12 +3,16 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.wrappers.GenericPID;
 
 import static frc.robot.Constants.ArmConstants.*;
 
 /** This class is used to control the robot's arm */
-public class Arm {
+public class Arm extends SubsystemBase {
 
     // Declare motors used by the arm
     private CANSparkMax rotation;
@@ -17,12 +21,13 @@ public class Arm {
     private CANSparkMax telescopeFollower;
     private CANSparkMax slider;
 
-    // Declare GenericPID objects to control the motors
-    private GenericPID rotationPID;
+    // Declare PID controllers to control the motors
+    private ProfiledPIDController rotationPID;
     private GenericPID telescopePID;
     private GenericPID sliderPID;
 
     private ArmState currentState = ArmState.ZERO;
+    private boolean active = false;
     
     /**
      * Constructs Arm subsystem
@@ -37,9 +42,10 @@ public class Arm {
 
         rotation = new CANSparkMax(rotationId, MotorType.kBrushless);
         rotation.restoreFactoryDefaults();
-        rotationPID = new GenericPID(rotation,ControlType.kPosition , .025);
-        rotationPID.setRatio(ROTATION_RATIO);
-        //rotationPID.setInputRange(0,80);        
+        rotation.getEncoder().setPositionConversionFactor(ROTATION_RATIO);
+        rotationPID = new ProfiledPIDController(.1, 0, 0,
+            new TrapezoidProfile.Constraints(45, 75));
+        rotationPID.setTolerance(1);
 
         rotationFollower = new CANSparkMax(rotationFollowerId, MotorType.kBrushless);
         rotationFollower.restoreFactoryDefaults();
@@ -49,7 +55,6 @@ public class Arm {
         telescope.restoreFactoryDefaults();
         telescopePID = new GenericPID(telescope, ControlType.kPosition, .025);
         telescopePID.setRatio(TELESCOPE_RATIO);
-        //telescopePID.setInputRange(0,17); 
         
         telescopeFollower = new CANSparkMax(telescopeFollowerId, MotorType.kBrushless);
         telescopeFollower.restoreFactoryDefaults();
@@ -60,40 +65,29 @@ public class Arm {
         slider.setInverted(true);
         sliderPID = new GenericPID(slider, ControlType.kPosition, .035);
         sliderPID.setRatio(SLIDER_RATIO);
-        //sliderPID.setInputRange(0,14); 
-
     }
 
     // Getters
-    public CANSparkMax getRotationMotor(){ return rotation; }
+    public CANSparkMax getRotationMotor() { return rotation; }
+    public ProfiledPIDController getRotationPid() { return rotationPID; }
+    public double getRotationPos() { return rotation.getEncoder().getPosition(); }
+    public boolean rotationAtTarget() { return rotationPID.atGoal(); }
+
     public CANSparkMax getTelescopeMotor() { return telescope; }
+    public GenericPID getTelescopePid() { return telescopePID; }
+    public double getTelescopePos() { return telescopePID.getPosition(); }
+
     public CANSparkMax getSliderMotor() { return slider; }
-    public GenericPID getRotationPid(){ return rotationPID; }
-    public GenericPID getTelescopePid(){ return telescopePID; }
     public GenericPID getSliderPid() { return sliderPID; }
+    public double getSliderPos() { return sliderPID.getPosition(); }
+
     public ArmState getCurrentState() { return currentState; }
 
-    /** Rotates the arm to a specific position 
-     * @param target The target position in degrees */
-    public void rotationGoTo(double target){
-        rotationPID.activate(target);
-    }  
-    /** Extends arm to a specific length 
-     *  @param target The target length in inches */
-    public void telescopeGoTo(double target){    
-        telescopePID.activate(target);
-    }
-    /** Slides arm to a specific position on the chassis
-     *  @param target The target position in inches */
-    public void sliderGoTo(double target){
-        sliderPID.activate(target);
-    }
-
     /** Move the arm to one of its presets */
-    public void goTo(ArmState preset) {
+    public void setTarget(ArmState preset) {
         currentState = preset;
 
-        switch(currentState) {
+        switch(preset) {
             case ZERO:
                 zeroPosition();
                 break;
@@ -112,59 +106,77 @@ public class Arm {
             case DROPOFF_HIGH:
                 dropoffHigh();
                 break;
+            case PLACE_HIGH:
+                placeHigh();
+                break;
         }
     }
 
+    /** @param setpoint The desired angle of the arm */
+    private void setRotationSetpoint(double setpoint) { active = true; rotationPID.setGoal(setpoint); }
+    /** @param setpoint The desired setpoint for the slider */
+    private void setTelescopeSetpoint(double setpoint) { telescopePID.activate(setpoint);}
+    /** @param setpoint The desired setpoint for the slider */
+    private void setSliderSetpoint(double setpoint) { sliderPID.activate(setpoint); }
+
     /** Moves the arm to initial position */
     public void zeroPosition(){
-        rotationGoTo(0);
-        telescopeGoTo(0);
-        sliderGoTo(0);
+        setRotationSetpoint(0);
+        setTelescopeSetpoint(0);
+        setSliderSetpoint(0);
     }
 
     /** Move the arm to an intermediate position that 
      *  ensures the arm will not collide with the robot bumper */
     public void intermediatePosition() {
-        rotationGoTo(25);
-        telescopeGoTo(1);
-        sliderGoTo(4.5);
+        setRotationSetpoint(20);
+        setTelescopeSetpoint(2);
+        setSliderSetpoint(4);
 
     }
 
     /** Moves the arm to a position ideal for 
      *  taking cargo from the human player */
     public void pickupHuman(){
-        rotationGoTo(75);
-        telescopeGoTo(0);
-        sliderGoTo(-1);
+        setRotationSetpoint(51);
+        setTelescopeSetpoint(0);
+        setSliderSetpoint(-1);
     }
 
     /** Moves the arm to a position ideal for 
      *  picking up cargo from the floor */
     public void pickupFloor(){
-        rotationGoTo(10);
-        telescopeGoTo(11);
-        sliderGoTo(9.5);   
+        setRotationSetpoint(11.3);
+        setTelescopeSetpoint(10.4);
+        setSliderSetpoint(7);   
     }
 
     /** Moves the arm to reach middle goal */
     public void dropoffMed(){
-        rotationGoTo(80);
-        telescopeGoTo(7);
-        sliderGoTo(5.5);    
+        setRotationSetpoint(56);
+        setTelescopeSetpoint(6.75);
+        setSliderSetpoint(7.25);    
     }
 
     /** Moves the arm to reach top goal */
     public void dropoffHigh(){
-       rotationGoTo(96);
-       telescopeGoTo(16);
-       sliderGoTo(14);
+       setRotationSetpoint(62);
+       setTelescopeSetpoint(17.75);
+       setSliderSetpoint(13.75);
     }
 
-    /** Moves the arm to a position defined by parameters */
-    public void testPosition(double rotation, double tele, double slider){
-        rotationGoTo(rotation);
-        telescopeGoTo(tele);
-        sliderGoTo(slider);
+    /** Made to place cones onto pegs from dropoffHigh */
+    public void placeHigh() {
+        setRotationSetpoint(55);
+        setTelescopeSetpoint(17.75);
+        setSliderSetpoint(13.75);
+    }
+
+    @Override // Called every 20ms
+    public void periodic() {
+        if(active) {
+            double rotationPIDOut = rotationPID.calculate(getRotationPos());
+            rotation.setVoltage(rotationPIDOut * RobotController.getBatteryVoltage());
+        }
     }
 }

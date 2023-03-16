@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
 
         // Start by lifting the arm to dropoff position
         if (currentTime < .2)
-            arm.goTo(ArmState.DROPOFF_MED);
+            arm.setTarget(ArmState.DROPOFF_MED);
 
         // Drop the preloaded piece
         if (currentTime > 2 && currentTime < 2.2)
@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
 
         // Return the arm to zero
         if (currentTime > 3 && currentTime < 3.2)
-            arm.goTo(ArmState.ZERO);
+            arm.setTarget(ArmState.ZERO);
     }
     
     // This function is called once at the start of teleop
@@ -121,30 +121,36 @@ public class Robot extends TimedRobot {
          *    6 - Zero
          */
 
+         
         // Pressing Right bumper makes the arm go to the preset of the drop of high position
         if (operatorController.getRightBumper())
-            arm.goTo(ArmState.DROPOFF_HIGH);
+            arm.setTarget(ArmState.DROPOFF_HIGH);
 
         // Pressing Y makes the arm go to the preset of the drop of medium position
         if (operatorController.getYButtonPressed())
-            arm.goTo(ArmState.DROPOFF_MED);
+            arm.setTarget(ArmState.DROPOFF_MED);
 
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
         if (operatorController.getXButtonPressed())
-            arm.goTo(ArmState.INTERMEDIATE);
+            arm.setTarget(ArmState.INTERMEDIATE);
 
         // Pressing A makes the arm go to the preset of the zero position
         if (operatorController.getAButtonPressed())
-            arm.goTo(ArmState.ZERO);
+            arm.setTarget(ArmState.ZERO);
 
         // Pressing Left bumper makes the arm go to the preset of the human pickup position
         if (operatorController.getLeftBumperPressed())
-            arm.goTo(ArmState.PICKUP_HUMAN);
+            arm.setTarget(ArmState.PICKUP_HUMAN);
         
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
         if (operatorController.getLeftTriggerAxis() > 0)
-            arm.goTo(ArmState.PICKUP_FLOOR);
+            arm.setTarget(ArmState.PICKUP_FLOOR);
 
+        // Press B to place a cone on a peg
+        if(operatorController.getBButtonPressed())
+            arm.setTarget(ArmState.PLACE_HIGH);
+
+        
     }
 
     // This function is called every 20ms while the robot is enabled
@@ -153,7 +159,6 @@ public class Robot extends TimedRobot {
         // Print data to the dashboard
         dashboard.printLimelightData(limelight);
         dashboard.printBasicDrivetrainData(robotContainer.getDrivetrain());
-        dashboard.printArmData(arm);
 
         // Run any functions that always need to be running
         limelight.updateLimelightTracking();
@@ -177,13 +182,13 @@ public class Robot extends TimedRobot {
         
         if (operatorController.getLeftBumper())
             claw.open();
-        else if (operatorController.getRightTriggerAxis() > .5)
+        else if (operatorController.getLeftTriggerAxis() > .5)
             claw.close();
             
         if(operatorController.getXButton())
-            arm.getTelescopeMotor().set(.1);
+            arm.getTelescopeMotor().set(.15);
         else if(operatorController.getYButton())
-            arm.getTelescopeMotor().set(-.1);
+            arm.getTelescopeMotor().set(-.3);
         else
             arm.getTelescopeMotor().set(0); 
 
@@ -195,9 +200,9 @@ public class Robot extends TimedRobot {
             arm.getSliderMotor().set(0); 
 
         if(operatorController.getRightBumper())
-            arm.getRotationMotor().set(.05);
+            arm.getRotationMotor().set(.1);
         else if(operatorController.getRightTriggerAxis() > .5)
-            arm.getRotationMotor().set(-.05);
+            arm.getRotationMotor().set(-.1);
         else
             arm.getRotationMotor().set(0); 
     }

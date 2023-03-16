@@ -113,5 +113,7 @@ public class RobotContainer {
 
         if(driverController.getRightBumperPressed())
             claw.toggleClaw();
+        else if(!driverController.getRightBumper())
+            claw.autoGrab();
     }
 }

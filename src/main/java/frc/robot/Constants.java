@@ -65,7 +65,7 @@ public final class Constants {
         /** Desired movement in inches * SLIDER_RATIO = required revolutions of the motor */
         public static final double SLIDER_RATIO = 4.33650762;
         /** Desired movement in degrees * ROTATION_RATIO = required revolutions of the motor */
-        public static final double ROTATION_RATIO = .277777777;
+        public static final double ROTATION_RATIO = .8838383838;
 
         /** Enum representing the preset arm positions */
         public enum ArmState {
@@ -74,7 +74,8 @@ public final class Constants {
             PICKUP_FLOOR,   // ZERO, BALANCE
             PICKUP_HUMAN,
             DROPOFF_MED,
-            DROPOFF_HIGH
+            DROPOFF_HIGH,
+            PLACE_HIGH
         }
     }
 

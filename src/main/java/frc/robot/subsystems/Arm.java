@@ -27,6 +27,7 @@ public class Arm extends SubsystemBase {
     private GenericPID sliderPID;
 
     private ArmState currentState = ArmState.ZERO;
+    private boolean active = false;
     
     /**
      * Constructs Arm subsystem
@@ -74,11 +75,11 @@ public class Arm extends SubsystemBase {
 
     public CANSparkMax getTelescopeMotor() { return telescope; }
     public GenericPID getTelescopePid() { return telescopePID; }
-    public double getTelescopePos() { return telescope.getEncoder().getPosition(); }
+    public double getTelescopePos() { return telescopePID.getPosition(); }
 
     public CANSparkMax getSliderMotor() { return slider; }
     public GenericPID getSliderPid() { return sliderPID; }
-    public double getSliderPos() { return slider.getEncoder().getPosition(); }
+    public double getSliderPos() { return sliderPID.getPosition(); }
 
     public ArmState getCurrentState() { return currentState; }
 
@@ -105,11 +106,14 @@ public class Arm extends SubsystemBase {
             case DROPOFF_HIGH:
                 dropoffHigh();
                 break;
+            case PLACE_HIGH:
+                placeHigh();
+                break;
         }
     }
 
     /** @param setpoint The desired angle of the arm */
-    private void setRotationSetpoint(double setpoint) { rotationPID.setGoal(setpoint); }
+    private void setRotationSetpoint(double setpoint) { active = true; rotationPID.setGoal(setpoint); }
     /** @param setpoint The desired setpoint for the slider */
     private void setTelescopeSetpoint(double setpoint) { telescopePID.activate(setpoint);}
     /** @param setpoint The desired setpoint for the slider */
@@ -125,16 +129,16 @@ public class Arm extends SubsystemBase {
     /** Move the arm to an intermediate position that 
      *  ensures the arm will not collide with the robot bumper */
     public void intermediatePosition() {
-        setRotationSetpoint(25);
-        setTelescopeSetpoint(1);
-        setSliderSetpoint(4.5);
+        setRotationSetpoint(20);
+        setTelescopeSetpoint(2);
+        setSliderSetpoint(4);
 
     }
 
     /** Moves the arm to a position ideal for 
      *  taking cargo from the human player */
     public void pickupHuman(){
-        setRotationSetpoint(75);
+        setRotationSetpoint(51);
         setTelescopeSetpoint(0);
         setSliderSetpoint(-1);
     }
@@ -142,31 +146,37 @@ public class Arm extends SubsystemBase {
     /** Moves the arm to a position ideal for 
      *  picking up cargo from the floor */
     public void pickupFloor(){
-        setRotationSetpoint(10);
-        setTelescopeSetpoint(11);
-        setSliderSetpoint(9.5);   
+        setRotationSetpoint(11.3);
+        setTelescopeSetpoint(10.4);
+        setSliderSetpoint(7);   
     }
 
     /** Moves the arm to reach middle goal */
     public void dropoffMed(){
-        setRotationSetpoint(80);
-        setTelescopeSetpoint(7);
-        setSliderSetpoint(5.5);    
+        setRotationSetpoint(56);
+        setTelescopeSetpoint(6.75);
+        setSliderSetpoint(7.25);    
     }
 
     /** Moves the arm to reach top goal */
     public void dropoffHigh(){
-       setRotationSetpoint(96);
-       setTelescopeSetpoint(16);
-       setSliderSetpoint(14);
+       setRotationSetpoint(62);
+       setTelescopeSetpoint(17.75);
+       setSliderSetpoint(13.75);
     }
 
-    public void testpos(double t) {setSliderSetpoint(t);}
+    /** Made to place cones onto pegs from dropoffHigh */
+    public void placeHigh() {
+        setRotationSetpoint(55);
+        setTelescopeSetpoint(17.75);
+        setSliderSetpoint(13.75);
+    }
 
     @Override // Called every 20ms
     public void periodic() {
-        // Get each motor's PID output
-        double rotationPIDOut = rotationPID.calculate(getRotationPos());
-        rotation.setVoltage(rotationPIDOut * RobotController.getBatteryVoltage());
+        if(active) {
+            double rotationPIDOut = rotationPID.calculate(getRotationPos());
+            rotation.setVoltage(rotationPIDOut * RobotController.getBatteryVoltage());
+        }
     }
 }

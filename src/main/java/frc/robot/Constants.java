@@ -74,7 +74,8 @@ public final class Constants {
             PICKUP_FLOOR,   // ZERO, BALANCE
             PICKUP_HUMAN,
             DROPOFF_MED,
-            DROPOFF_HIGH
+            DROPOFF_HIGH,
+            PLACE_HIGH
         }
     }
 

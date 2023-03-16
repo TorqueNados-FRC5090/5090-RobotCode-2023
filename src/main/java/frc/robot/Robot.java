@@ -122,7 +122,7 @@ public class Robot extends TimedRobot {
          *    6 - Zero
          */
 
-         /*
+         
         // Pressing Right bumper makes the arm go to the preset of the drop of high position
         if (operatorController.getRightBumper())
             arm.setTarget(ArmState.DROPOFF_HIGH);
@@ -147,20 +147,11 @@ public class Robot extends TimedRobot {
         if (operatorController.getLeftTriggerAxis() > 0)
             arm.setTarget(ArmState.PICKUP_FLOOR);
 
-        */
+        // Press B to place a cone on a peg
+        if(operatorController.getBButtonPressed())
+            arm.setTarget(ArmState.PLACE_HIGH);
 
-        if(operatorController.getBButton())
-        arm.testpos(0);
-
-        if(operatorController.getAButton())
-        arm.testpos(1);
-
-        if(operatorController.getXButton())
-        arm.testpos(2);
-
-        if(operatorController.getYButton())
-        arm.testpos(3);
-
+        
     }
 
     // This function is called every 20ms while the robot is enabled
@@ -169,7 +160,6 @@ public class Robot extends TimedRobot {
         // Print data to the dashboard
         dashboard.printLimelightData(limelight);
         dashboard.printBasicDrivetrainData(robotContainer.getDrivetrain());
-        dashboard.printArmData(arm);
 
         // Run any functions that always need to be running
         limelight.updateLimelightTracking();
@@ -193,13 +183,13 @@ public class Robot extends TimedRobot {
         
         if (operatorController.getLeftBumper())
             claw.open();
-        else if (operatorController.getRightTriggerAxis() > .5)
+        else if (operatorController.getLeftTriggerAxis() > .5)
             claw.close();
             
         if(operatorController.getXButton())
-            arm.getTelescopeMotor().set(.1);
+            arm.getTelescopeMotor().set(.15);
         else if(operatorController.getYButton())
-            arm.getTelescopeMotor().set(-.1);
+            arm.getTelescopeMotor().set(-.3);
         else
             arm.getTelescopeMotor().set(0); 
 

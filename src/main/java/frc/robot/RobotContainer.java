@@ -57,6 +57,13 @@ public class RobotContainer {
             () -> driverController.getLeftX(), 
             () -> driverController.getLeftY(),
             180));
+
+        Trigger slowDriveBtn = new Trigger(() -> driverController.getLeftStickButton());
+        slowDriveBtn.whileTrue(
+            new DriveCommand(drivetrain, 
+            () -> driverController.getLeftX() * .4, 
+            () -> driverController.getLeftY() * .4,
+            () -> driverController.getRightX() * .4));
     }
 
     /** Initialize the auton selector on the dashboard */

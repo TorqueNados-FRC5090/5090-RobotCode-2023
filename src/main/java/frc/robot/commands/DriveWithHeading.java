@@ -27,7 +27,7 @@ public class DriveWithHeading extends CommandBase {
         this.inputX = translationInputX;
         this.inputY = translationInputY;
         this.headingDegrees = headingDegrees;
-        this.headingController = new PIDController(.1, 0, .0005);
+        this.headingController = new PIDController(.04, 0, .0005);
         
         // Tell the CommandBase that this command uses the drivetrain
         addRequirements(drivetrain);

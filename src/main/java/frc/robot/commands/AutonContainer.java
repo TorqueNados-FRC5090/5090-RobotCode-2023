@@ -9,11 +9,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.ArmConstants.ArmState;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 import static frc.robot.Constants.SwerveConstants.SWERVE_KINEMATICS;
 
 public class AutonContainer {
     private Drivetrain drivetrain;
+    private Arm arm;
+    private Claw claw;
 
     /** Used in auton to automatically adjust for inaccuracies in the robot's movement along the X axis */
     private PIDController xController =
@@ -25,8 +30,47 @@ public class AutonContainer {
     private PIDController thetaController =
         new PIDController(0, 0, 0);
 
-    public AutonContainer(Drivetrain drivetrain) {this.drivetrain = drivetrain;}
+    public AutonContainer(Drivetrain drivetrain, Arm arm, Claw claw) {
+        this.drivetrain = drivetrain;
+        this.arm = arm;
+        this.claw = claw;
+    }
 
+
+    /** Auton that drops a piece high, reverses, and sets heading*/
+    public Command dropHigh() {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> claw.close()),
+            new GoToArmPreset(arm, ArmState.INTERMEDIATE),
+            new GoToArmPreset(arm, ArmState.DROPOFF_MED),
+            new GoToArmPreset(arm, ArmState.DROPOFF_HIGH),
+            new DoNothing(.75, drivetrain),
+            new InstantCommand(() -> claw.open()),
+            new DoNothing(.75, drivetrain),
+            new GoToArmPreset(arm, ArmState.ZERO),
+            new DoNothing(1, drivetrain),
+            //new DriveForward(drivetrain, -16, .3),
+            new DriveWithHeading(drivetrain, () -> 0, () -> 0, 180),
+            new InstantCommand(() -> drivetrain.resetHeading())
+        );
+    }
+
+    /** Auton that drops a piece medium, reverses, and sets heading*/
+    public Command dropMedium() {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> claw.close()),
+            new GoToArmPreset(arm, ArmState.INTERMEDIATE),
+            new GoToArmPreset(arm, ArmState.DROPOFF_MED),
+            new DoNothing(.75, drivetrain),
+            new InstantCommand(() -> claw.open()),
+            new DoNothing(.75, drivetrain),
+            new GoToArmPreset(arm, ArmState.ZERO),
+            new DoNothing(1, drivetrain),
+            //new DriveForward(drivetrain, -16, .3),
+            new DriveWithHeading(drivetrain, () -> 0, () -> 0, 180),
+            new InstantCommand(() -> drivetrain.resetHeading())
+        );
+    }
 
     /** Auton for no bump side that scores a preloaded cone and a floor cube */
     public Command coneCubeNoBumpAuto() {

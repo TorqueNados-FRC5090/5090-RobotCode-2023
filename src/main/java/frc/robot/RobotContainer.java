@@ -3,6 +3,7 @@ package frc.robot;
 // Import constants
 import static frc.robot.Constants.ControllerPorts.DRIVER_PORT;
 import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
+import static frc.robot.Constants.ArmIDs.*;
 
 // Command imports
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,6 +13,7 @@ import frc.robot.commands.AutonContainer;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.LockDrivetrain;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 
@@ -23,11 +25,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /** Handles everything command based */
 public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
-    private AutonContainer auton = new AutonContainer(drivetrain);
-    private Claw claw = new Claw(CLAW_LASER_PORT);
-    private XboxController driverController = new XboxController(DRIVER_PORT);
+    private final Arm arm = new Arm(ROTATION_ID, ROTATION_FOLLOWER_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
+    private final Claw claw = new Claw(CLAW_LASER_PORT);
+    private final AutonContainer auton = new AutonContainer(drivetrain, arm, claw);
+    private final XboxController driverController = new XboxController(DRIVER_PORT);
     private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();
-    private final SendableChooser<String> testAutonChooser = new SendableChooser<String>();
 
     /** Constructs a RobotContainer */
     public RobotContainer() {
@@ -69,20 +71,9 @@ public class RobotContainer {
     /** Initialize the auton selector on the dashboard */
     private void initChooser() {
         autonChooser.setDefaultOption("Do Nothing", new WaitCommand(0));
-        autonChooser.addOption("Cone Cube with No Bump", auton.coneCubeNoBumpAuto());
-        autonChooser.addOption("Cube Cube with No Bump", auton.cubeCubeNoBumpAuto());
-        autonChooser.addOption("Cone Cube with Bump", auton.coneCubeBumpAuto());
-        autonChooser.addOption("No Bump 3 Piece", auton.noBumpSide3PieceAuton());
 
         SmartDashboard.putData("Auton Selector", autonChooser);
-
-        testAutonChooser.addOption("Straight", "TestPathStraight");
-        testAutonChooser.addOption("Reverse", "TestPathReverse");
-        testAutonChooser.addOption("Straight + Spin", "TestPathSpin");
-        testAutonChooser.addOption("Square pointing ahead", "TestPathSquareNoRotation");
-        testAutonChooser.addOption("Square while rotating", "TestPathSquareWithRotation");
-
-        SmartDashboard.putData("Test Auton Paths", testAutonChooser);
+        autonChooser.setDefaultOption("Drop High Auto", auton.dropHigh());
     }
 
 
@@ -101,6 +92,7 @@ public class RobotContainer {
     /** @return The robot's drivetrain */
     public Drivetrain getDrivetrain() { return drivetrain; }
     public Claw getClaw() { return claw; }
+    public Arm getArm() {return arm;}
 
     // For running TimedRobot style code in RobotContainer
     /** Should always be called from Robot.teleopPeriodic() */

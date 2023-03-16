@@ -1,7 +1,6 @@
 package frc.robot;
 
 // Import Constants
-import static frc.robot.Constants.ArmIDs.*;
 import frc.robot.Constants.ArmConstants.ArmState;
 
 import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 // Misc imports
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 
 
@@ -41,7 +39,6 @@ public class Robot extends TimedRobot {
     // Other objects
     private XboxController operatorController;
     private Compressor compressor;
-    private double autonStartTime;
 
     // This function is run when the robot is first started up and should be used
     // for any initialization code.
@@ -53,7 +50,7 @@ public class Robot extends TimedRobot {
         // Construct objects
         robotContainer = new RobotContainer();
         operatorController = new XboxController(OPERATOR_PORT);
-        arm = new Arm(ROTATION_ID, ROTATION_FOLLOWER_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
+        arm = robotContainer.getArm();
         claw = robotContainer.getClaw();
         limelight = new Limelight();
         dashboard = new Dashboard();
@@ -65,7 +62,6 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         // Get the command to be used in auton
         autonCommand = robotContainer.getAutonomousCommand();
-        autonStartTime = Timer.getFPGATimestamp();
         // Schedule the command if there is one
         if (autonCommand != null)
             autonCommand.schedule();
@@ -73,21 +69,7 @@ public class Robot extends TimedRobot {
 
     // This function is called every 20ms during auton
     @Override
-    public void autonomousPeriodic() { 
-        double currentTime = Timer.getFPGATimestamp() - autonStartTime;
-
-        // Start by lifting the arm to dropoff position
-        if (currentTime < .2)
-            arm.setTarget(ArmState.DROPOFF_MED);
-
-        // Drop the preloaded piece
-        if (currentTime > 2 && currentTime < 2.2)
-            claw.open();
-
-        // Return the arm to zero
-        if (currentTime > 3 && currentTime < 3.2)
-            arm.setTarget(ArmState.ZERO);
-    }
+    public void autonomousPeriodic() { }
     
     // This function is called once at the start of teleop
     @Override

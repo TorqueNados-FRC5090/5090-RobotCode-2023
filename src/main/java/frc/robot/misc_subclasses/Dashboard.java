@@ -27,9 +27,6 @@ public class Dashboard {
         SmartDashboard.putNumber("Slider Position", arm.getSliderPos());
 
         SmartDashboard.putBoolean("Rotation at Setpoint", arm.rotationAtTarget());
-        SmartDashboard.putBoolean("Telescope at Setpoint", arm.telescopeAtTarget());
-        SmartDashboard.putBoolean("Slider at Setpoint", arm.sliderAtTarget());
-        SmartDashboard.putBoolean("Arm at Setpoint", arm.atTarget());
 
         SmartDashboard.putString("Arm State", arm.getCurrentState().toString());
     }

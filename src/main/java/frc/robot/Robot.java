@@ -3,6 +3,7 @@ package frc.robot;
 // Import Constants
 import static frc.robot.Constants.ArmIDs.*;
 import frc.robot.Constants.ArmConstants.ArmState;
+
 import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
 
 // Camera imports
@@ -121,6 +122,7 @@ public class Robot extends TimedRobot {
          *    6 - Zero
          */
 
+         /*
         // Pressing Right bumper makes the arm go to the preset of the drop of high position
         if (operatorController.getRightBumper())
             arm.setTarget(ArmState.DROPOFF_HIGH);
@@ -144,6 +146,21 @@ public class Robot extends TimedRobot {
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
         if (operatorController.getLeftTriggerAxis() > 0)
             arm.setTarget(ArmState.PICKUP_FLOOR);
+
+        */
+
+        if(operatorController.getBButton())
+        arm.testpos(0);
+
+        if(operatorController.getAButton())
+        arm.testpos(1);
+
+        if(operatorController.getXButton())
+        arm.testpos(2);
+
+        if(operatorController.getYButton())
+        arm.testpos(3);
+
     }
 
     // This function is called every 20ms while the robot is enabled
@@ -194,9 +211,9 @@ public class Robot extends TimedRobot {
             arm.getSliderMotor().set(0); 
 
         if(operatorController.getRightBumper())
-            arm.getRotationMotor().set(.05);
+            arm.getRotationMotor().set(.1);
         else if(operatorController.getRightTriggerAxis() > .5)
-            arm.getRotationMotor().set(-.05);
+            arm.getRotationMotor().set(-.1);
         else
             arm.getRotationMotor().set(0); 
     }

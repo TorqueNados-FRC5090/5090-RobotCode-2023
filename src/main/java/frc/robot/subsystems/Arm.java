@@ -1,15 +1,13 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.wrappers.GenericPID;
 
 import static frc.robot.Constants.ArmConstants.*;
 
@@ -25,14 +23,10 @@ public class Arm extends SubsystemBase {
 
     // Declare PID controllers to control the motors
     private ProfiledPIDController rotationPID;
-    private ArmFeedforward rotationFF;
-    private PIDController telescopePID;
-    private PIDController sliderPID;
+    private GenericPID telescopePID;
+    private GenericPID sliderPID;
 
     private ArmState currentState = ArmState.ZERO;
-    /** The last recorded velocity of the rotation motor */
-    private double prevRotVel = 0;
-    private double prevTime = Timer.getFPGATimestamp();
     
     /**
      * Constructs Arm subsystem
@@ -48,10 +42,9 @@ public class Arm extends SubsystemBase {
         rotation = new CANSparkMax(rotationId, MotorType.kBrushless);
         rotation.restoreFactoryDefaults();
         rotation.getEncoder().setPositionConversionFactor(ROTATION_RATIO);
-        rotationPID = new ProfiledPIDController(.05, 0, 0, 
-            new TrapezoidProfile.Constraints(30, 40));
+        rotationPID = new ProfiledPIDController(.1, 0, 0,
+            new TrapezoidProfile.Constraints(45, 75));
         rotationPID.setTolerance(1);
-        rotationFF = new ArmFeedforward(.01, 0, .00, 0);
 
         rotationFollower = new CANSparkMax(rotationFollowerId, MotorType.kBrushless);
         rotationFollower.restoreFactoryDefaults();
@@ -59,9 +52,8 @@ public class Arm extends SubsystemBase {
 
         telescope = new CANSparkMax(telescopeId, MotorType.kBrushless);
         telescope.restoreFactoryDefaults();
-        telescope.getEncoder().setPositionConversionFactor(TELESCOPE_RATIO);
-        telescopePID = new PIDController(.025, 0, 0);
-        telescopePID.setTolerance(.15);
+        telescopePID = new GenericPID(telescope, ControlType.kPosition, .025);
+        telescopePID.setRatio(TELESCOPE_RATIO);
         
         telescopeFollower = new CANSparkMax(telescopeFollowerId, MotorType.kBrushless);
         telescopeFollower.restoreFactoryDefaults();
@@ -70,10 +62,8 @@ public class Arm extends SubsystemBase {
         slider = new CANSparkMax(sliderId, MotorType.kBrushless);
         slider.restoreFactoryDefaults();
         slider.setInverted(true);
-        slider.getEncoder().setPositionConversionFactor(SLIDER_RATIO);
-        sliderPID = new PIDController(.035, 0, 0);
-        sliderPID.setTolerance(.15);
-
+        sliderPID = new GenericPID(slider, ControlType.kPosition, .035);
+        sliderPID.setRatio(SLIDER_RATIO);
     }
 
     // Getters
@@ -83,20 +73,13 @@ public class Arm extends SubsystemBase {
     public boolean rotationAtTarget() { return rotationPID.atGoal(); }
 
     public CANSparkMax getTelescopeMotor() { return telescope; }
-    public PIDController getTelescopePid() { return telescopePID; }
+    public GenericPID getTelescopePid() { return telescopePID; }
     public double getTelescopePos() { return telescope.getEncoder().getPosition(); }
-    public boolean telescopeAtTarget() { return telescopePID.atSetpoint(); }
 
     public CANSparkMax getSliderMotor() { return slider; }
-    public PIDController getSliderPid() { return sliderPID; }
+    public GenericPID getSliderPid() { return sliderPID; }
     public double getSliderPos() { return slider.getEncoder().getPosition(); }
-    public boolean sliderAtTarget() { return sliderPID.atSetpoint(); }
 
-    public boolean atTarget() {
-        return rotationAtTarget()
-            && telescopeAtTarget()
-            && sliderAtTarget();
-    }
     public ArmState getCurrentState() { return currentState; }
 
     /** Move the arm to one of its presets */
@@ -127,10 +110,10 @@ public class Arm extends SubsystemBase {
 
     /** @param setpoint The desired angle of the arm */
     private void setRotationSetpoint(double setpoint) { rotationPID.setGoal(setpoint); }
-    /** @param setpoint The desired setpoint for the telescope */
-    private void setTelescopeSetpoint(double setpoint) {}
     /** @param setpoint The desired setpoint for the slider */
-    private void setSliderSetpoint(double setpoint) {}
+    private void setTelescopeSetpoint(double setpoint) { telescopePID.activate(setpoint);}
+    /** @param setpoint The desired setpoint for the slider */
+    private void setSliderSetpoint(double setpoint) { sliderPID.activate(setpoint); }
 
     /** Moves the arm to initial position */
     public void zeroPosition(){
@@ -178,35 +161,12 @@ public class Arm extends SubsystemBase {
        setSliderSetpoint(14);
     }
 
+    public void testpos(double t) {setSliderSetpoint(t);}
+
     @Override // Called every 20ms
     public void periodic() {
-        double currentTime = Timer.getFPGATimestamp();
-
         // Get each motor's PID output
         double rotationPIDOut = rotationPID.calculate(getRotationPos());
-        double telescopePIDOut = telescopePID.calculate(getTelescopePos());
-        double sliderPIDOut = sliderPID.calculate(getSliderPos());
-
-        // Get the arm's velocity
-        double rotationVel = rotationPID.getSetpoint().velocity;
-        // Calculate the arm's acceleration
-        double rotationAccel = (rotationVel - prevRotVel) / (currentTime - prevTime);
-        // Calculate rotation feed forward output
-        double rotationFFOut = rotationFF.calculate(getRotationPos() - 60, rotationVel/*, rotationAccel*/);
-
-        rotation.setVoltage((rotationPIDOut + rotationFFOut) * RobotController.getBatteryVoltage());
-        telescope.setVoltage(telescopePIDOut * RobotController.getBatteryVoltage());
-        slider.setVoltage(sliderPIDOut * RobotController.getBatteryVoltage());
-
-        // Used for tuning, TODO should probably be moved or deleted later
-        SmartDashboard.putNumber("rotationVel", rotationVel);
-        SmartDashboard.putNumber("rotationAccel", rotationAccel);
-        SmartDashboard.putNumber("rotationPIDOut", rotationPIDOut);
-        SmartDashboard.putNumber("rotationFFOut", rotationFFOut);
-        SmartDashboard.putNumber("(rotationPIDOut + rotationFFOut)", (rotationPIDOut + rotationFFOut));
-
-        // Update internal values
-        prevRotVel = rotationVel;
-        prevTime = currentTime;
+        rotation.setVoltage(rotationPIDOut * RobotController.getBatteryVoltage());
     }
 }

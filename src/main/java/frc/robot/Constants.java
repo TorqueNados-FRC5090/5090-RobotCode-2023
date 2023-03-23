@@ -23,7 +23,7 @@ public final class Constants {
 
     public static final class DIOPorts {
         public static final int CLAW_LASER_PORT = 0;
-
+        public static final int PLAYER_INDICATOR_PORT = 1;
     }
 
     /** IDs used by the drivetrain.

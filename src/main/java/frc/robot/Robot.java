@@ -3,8 +3,6 @@ package frc.robot;
 // Import Constants
 import frc.robot.Constants.ArmConstants.ArmState;
 
-import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
-
 // Camera imports
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
@@ -13,6 +11,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 // Subsystem and subclass imports
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.PlayerIndicator;
 import frc.robot.misc_subclasses.Dashboard;
 import frc.robot.misc_subclasses.Limelight;
 
@@ -33,6 +32,7 @@ public class Robot extends TimedRobot {
     // Subsystem and subclass objects
     private Arm arm;
     private Claw claw;
+    public PlayerIndicator indicator;
     private Dashboard dashboard;
     private Limelight limelight;
     
@@ -49,9 +49,10 @@ public class Robot extends TimedRobot {
 
         // Construct objects
         robotContainer = new RobotContainer();
-        operatorController = new XboxController(OPERATOR_PORT);
+        operatorController = robotContainer.getOperatorController();
         arm = robotContainer.getArm();
         claw = robotContainer.getClaw();
+        indicator = robotContainer.getPlayerIndicator();
         limelight = new Limelight();
         dashboard = new Dashboard();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
@@ -80,6 +81,7 @@ public class Robot extends TimedRobot {
         
         // Start the compressor
         compressor.enableDigital();
+        arm.setTarget(ArmState.ZERO);
     }
 
     // This function is called every 20ms during teleop
@@ -105,32 +107,34 @@ public class Robot extends TimedRobot {
 
          
         // Pressing Right bumper makes the arm go to the preset of the drop of high position
-        if (operatorController.getRightBumper())
+        if (operatorController.getRawButtonPressed(5))
             arm.setTarget(ArmState.DROPOFF_HIGH);
 
         // Pressing Y makes the arm go to the preset of the drop of medium position
-        if (operatorController.getYButtonPressed())
+        if (operatorController.getRawButtonPressed(7))
             arm.setTarget(ArmState.DROPOFF_MED);
 
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
-        if (operatorController.getXButtonPressed())
+        if (operatorController.getRawButtonPressed(3))
             arm.setTarget(ArmState.INTERMEDIATE);
 
         // Pressing A makes the arm go to the preset of the zero position
-        if (operatorController.getAButtonPressed())
+        if (operatorController.getRawButtonPressed(1))
             arm.setTarget(ArmState.ZERO);
 
         // Pressing Left bumper makes the arm go to the preset of the human pickup position
-        if (operatorController.getLeftBumperPressed())
+        if (operatorController.getRawButtonPressed(4))
             arm.setTarget(ArmState.PICKUP_HUMAN);
         
         // Pressing Left trigger makes the arm go to the preset of the floor pickup position
-        if (operatorController.getLeftTriggerAxis() > 0)
+        if (operatorController.getRawButtonPressed(2))
             arm.setTarget(ArmState.PICKUP_FLOOR);
 
         // Press B to place a cone on a peg
-        if(operatorController.getBButtonPressed())
+        if(operatorController.getRawButtonPressed(6))
             arm.setTarget(ArmState.PLACE_HIGH);
+
+       
 
         
     }
@@ -141,6 +145,7 @@ public class Robot extends TimedRobot {
         // Print data to the dashboard
         dashboard.printLimelightData(limelight);
         dashboard.printBasicDrivetrainData(robotContainer.getDrivetrain());
+        dashboard.printIndicatorState(indicator);
 
         // Run any functions that always need to be running
         limelight.updateLimelightTracking();
@@ -162,30 +167,33 @@ public class Robot extends TimedRobot {
          *    7 and 8 control rotation
          */
         
-        if (operatorController.getLeftBumper())
+        if (operatorController.getLeftTriggerAxis() > .5)
             claw.open();
-        else if (operatorController.getLeftTriggerAxis() > .5)
+        else if (operatorController.getRawButton(1))
             claw.close();
             
-        if(operatorController.getXButton())
+        if(operatorController.getRawButton(5))
             arm.getTelescopeMotor().set(.15);
-        else if(operatorController.getYButton())
+        else if(operatorController.getRawButton(3))
             arm.getTelescopeMotor().set(-.3);
         else
             arm.getTelescopeMotor().set(0); 
 
-        if(operatorController.getAButton())
+        if(operatorController.getRawButton(2))
             arm.getSliderMotor().set(.15);
-        else if(operatorController.getBButton())
+        else if(operatorController.getRawButton(4))
             arm.getSliderMotor().set(-.15);
         else
             arm.getSliderMotor().set(0); 
 
-        if(operatorController.getRightBumper())
+        if(operatorController.getRawButton(6))
             arm.getRotationMotor().set(.1);
         else if(operatorController.getRightTriggerAxis() > .5)
             arm.getRotationMotor().set(-.1);
         else
             arm.getRotationMotor().set(0); 
+
+        if(operatorController.getRawButtonPressed(7))
+            indicator.indicatorToggle();
     }
 }

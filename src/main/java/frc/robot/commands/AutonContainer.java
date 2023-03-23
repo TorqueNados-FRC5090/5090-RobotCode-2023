@@ -4,6 +4,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
@@ -40,16 +41,18 @@ public class AutonContainer {
     /** Auton that drops a piece high, reverses, and sets heading*/
     public Command dropHigh() {
         return new SequentialCommandGroup(
+            new GoToArmPreset(arm, ArmState.ZERO),
             new InstantCommand(() -> claw.close()),
             new GoToArmPreset(arm, ArmState.INTERMEDIATE),
-            new GoToArmPreset(arm, ArmState.DROPOFF_MED),
+            new GoToArmPreset(arm, ArmState.PICKUP_HUMAN),
             new GoToArmPreset(arm, ArmState.DROPOFF_HIGH),
             new DoNothing(.75, drivetrain),
+            new GoToArmPreset(arm, ArmState.PLACE_HIGH),
             new InstantCommand(() -> claw.open()),
             new DoNothing(.75, drivetrain),
             new GoToArmPreset(arm, ArmState.ZERO),
             new DoNothing(1, drivetrain),
-            //new DriveForward(drivetrain, -16, .3),
+            new DriveForward(drivetrain, Units.feetToMeters(14), .7 ),
             new DriveWithHeading(drivetrain, () -> 0, () -> 0, 180),
             new InstantCommand(() -> drivetrain.resetHeading())
         );
@@ -58,6 +61,7 @@ public class AutonContainer {
     /** Auton that drops a piece medium, reverses, and sets heading*/
     public Command dropMedium() {
         return new SequentialCommandGroup(
+            new GoToArmPreset(arm, ArmState.ZERO),
             new InstantCommand(() -> claw.close()),
             new GoToArmPreset(arm, ArmState.INTERMEDIATE),
             new GoToArmPreset(arm, ArmState.DROPOFF_MED),
@@ -66,7 +70,7 @@ public class AutonContainer {
             new DoNothing(.75, drivetrain),
             new GoToArmPreset(arm, ArmState.ZERO),
             new DoNothing(1, drivetrain),
-            //new DriveForward(drivetrain, -16, .3),
+            new DriveForward(drivetrain, Units.feetToMeters(16), .5),
             new DriveWithHeading(drivetrain, () -> 0, () -> 0, 180),
             new InstantCommand(() -> drivetrain.resetHeading())
         );

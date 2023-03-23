@@ -63,7 +63,7 @@ public class Arm extends SubsystemBase {
         slider = new CANSparkMax(sliderId, MotorType.kBrushless);
         slider.restoreFactoryDefaults();
         slider.setInverted(true);
-        sliderPID = new GenericPID(slider, ControlType.kPosition, .035);
+        sliderPID = new GenericPID(slider, ControlType.kPosition, .037);
         sliderPID.setRatio(SLIDER_RATIO);
     }
 

@@ -60,14 +60,14 @@ public class SwerveModule extends SubsystemBase {
         boolean turningMotorInverted,
         double turningEncoderOffset) {
 
-        // Initialize internal variables with values passed through params
+        // Initialize internal variables with values passed through paramsu
         this.moduleNumber = moduleNumber;
         angleOffset = turningEncoderOffset;
 
         // Construct and configure the driving motor
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         driveMotor.restoreFactoryDefaults();
-        driveMotor.setSmartCurrentLimit(40);
+        driveMotor.setSmartCurrentLimit(45);
         driveMotor.getPIDController().setFF(0.0);
         driveMotor.getPIDController().setP(0.2);
         driveMotor.getPIDController().setI(0.0);
@@ -143,6 +143,22 @@ public class SwerveModule extends SubsystemBase {
     public void resetAngleToAbsolute() {
         double angle = angleEncoder.getAbsolutePosition() - angleOffset;
         turnEncoder.setPosition(angle);
+    }
+
+      /**Resets this modules drive encoder*/
+      public void resetDriveEncoder(){
+        driveEncoder.setPosition(0);
+    }
+
+    /**Resets this modules turn encoder */
+    public void resetTurnEncoder(){
+        turnEncoder.setPosition(0);
+    }
+
+    /**Resets both turn and drive encoders for this module */
+    public void resetEncoders(){
+        resetTurnEncoder();
+        resetDriveEncoder();
     }
 
     /** Set the entire module to a desired {@link SwerveModuleState state}, controlling

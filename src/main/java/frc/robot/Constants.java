@@ -23,7 +23,7 @@ public final class Constants {
 
     public static final class DIOPorts {
         public static final int CLAW_LASER_PORT = 0;
-
+        public static final int PLAYER_INDICATOR_PORT = 1;
     }
 
     /** IDs used by the drivetrain.
@@ -50,6 +50,7 @@ public final class Constants {
     /** IDs used by the Arm */
     public static final class ArmIDs {
         public static final int ROTATION_ID = 10;
+        public static final int ROTATION_FOLLOWER_ID = 15;
         public static final int TELESCOPE_ID = 11;
         public static final int TELESCOPE_FOLLOWER_ID = 12;
         public static final int SLIDER_ID = 13;
@@ -64,18 +65,17 @@ public final class Constants {
         /** Desired movement in inches * SLIDER_RATIO = required revolutions of the motor */
         public static final double SLIDER_RATIO = 4.33650762;
         /** Desired movement in degrees * ROTATION_RATIO = required revolutions of the motor */
-        public static final double ROTATION_RATIO = .277777777;
+        public static final double ROTATION_RATIO = .8838383838;
 
         /** Enum representing the preset arm positions */
         public enum ArmState {
             ZERO,           // PICKUP_FLOOR, DROPOFF_LOW
-            BALANCE,        // PICKUP_FLOOR, DROPOFF_LOW
             INTERMEDIATE,
             PICKUP_FLOOR,   // ZERO, BALANCE
             PICKUP_HUMAN,
-            DROPOFF_LOW,    // ZERO, BALANCE
             DROPOFF_MED,
-            DROPOFF_HIGH
+            DROPOFF_HIGH,
+            PLACE_HIGH
         }
     }
 
@@ -95,12 +95,20 @@ public final class Constants {
         public static final double MAX_DRIVE = 0.5;            // Simple speed limit so we don't drive too fast
     }
 
-    /** Turning a module to its offset will point it forward */
+    /** Turning a module to absolute 0 minus its offset will point it forward */
     public static final class SwerveModuleOffsets {
         public static final double FL_OFFSET = 312;
         public static final double FR_OFFSET = 87;
         public static final double RL_OFFSET = 250;
         public static final double RR_OFFSET = 198;
+    }
+
+    /** The offsets for the workhorse chassis */
+    public static final class WorkhorseSwerveModuleOffsets {
+        public static final double FL_OFFSET = 120;
+        public static final double FR_OFFSET = 188;
+        public static final double RL_OFFSET = 253;
+        public static final double RR_OFFSET = 135;
     }
 
     /** Whether or not each swerve component should be inverted/reversed */
@@ -139,15 +147,6 @@ public final class Constants {
         /** Standard kinematics with center of rotation located at the center of the robot */
         public static final SwerveDriveKinematics SWERVE_KINEMATICS =
             new SwerveDriveKinematics(MODULE_TRANSLATIONS);
-
-        // PID values for the X, Y, and Theta controllers
-        public static final double X_CONTROLLER_P = 0.2;
-        public static final double X_CONTROLLER_D = 0;
-        public static final double Y_CONTROLLER_P = 0.2;
-        public static final double Y_CONTROLLER_D = 0;
-        public static final double THETA_CONTROLLER_P = 8;
-        public static final double THETA_CONTROLLER_D = 0;
-
 
         /** The max speed the robot is allowed to drive in m/sec */
         public static final double MAX_TRANSLATION_SPEED = 4.5;

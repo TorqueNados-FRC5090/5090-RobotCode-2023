@@ -1,29 +1,27 @@
 package frc.robot;
 
-// Command imports
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+// Import Constants
+import frc.robot.Constants.ArmConstants.ArmState;
 
 // Camera imports
 import edu.wpi.first.cameraserver.CameraServer;
-import frc.robot.misc_subclasses.Limelight;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 // Subsystem and subclass imports
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-
-// Import Constants
-import static frc.robot.Constants.ArmIDs.*;
-import static frc.robot.Constants.ControllerPorts.OPERATOR_PORT;
-import static frc.robot.Constants.DIOPorts.CLAW_LASER_PORT;
-
-// Misc imports
-import edu.wpi.first.wpilibj.XboxController;
-//import frc.robot.Constants.ArmConstants.ArmState;
+import frc.robot.subsystems.PlayerIndicator;
 import frc.robot.misc_subclasses.Dashboard;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import frc.robot.misc_subclasses.Limelight;
+
+// Command imports
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+// Misc imports
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
+
 
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;
@@ -34,19 +32,13 @@ public class Robot extends TimedRobot {
     // Subsystem and subclass objects
     private Arm arm;
     private Claw claw;
+    public PlayerIndicator indicator;
     private Dashboard dashboard;
     private Limelight limelight;
     
     // Other objects
     private XboxController operatorController;
     private Compressor compressor;
-
-    // Used to test the arm
-    private double rotationPos;
-    private double sliderPos;
-    private double telescopePos;
-    private int prev;
-    private int i;
 
     // This function is run when the robot is first started up and should be used
     // for any initialization code.
@@ -57,9 +49,10 @@ public class Robot extends TimedRobot {
 
         // Construct objects
         robotContainer = new RobotContainer();
-        operatorController = new XboxController(OPERATOR_PORT);
-        arm = new Arm(ROTATION_ID, TELESCOPE_ID, TELESCOPE_FOLLOWER_ID, SLIDER_ID);
-        claw = new Claw(CLAW_LASER_PORT);
+        operatorController = robotContainer.getOperatorController();
+        arm = robotContainer.getArm();
+        claw = robotContainer.getClaw();
+        indicator = robotContainer.getPlayerIndicator();
         limelight = new Limelight();
         dashboard = new Dashboard();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
@@ -77,7 +70,7 @@ public class Robot extends TimedRobot {
 
     // This function is called every 20ms during auton
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() { }
     
     // This function is called once at the start of teleop
     @Override
@@ -85,9 +78,10 @@ public class Robot extends TimedRobot {
         // This makes sure that the autonomous command stops when teleop starts
         if (autonCommand != null)
             autonCommand.cancel();
-
+        
         // Start the compressor
         compressor.enableDigital();
+        arm.setTarget(ArmState.ZERO);
     }
 
     // This function is called every 20ms during teleop
@@ -95,119 +89,111 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         robotContainer.teleopPeriodic();
 
-        if (operatorController.getLeftBumperPressed())
-            claw.open();
-        else if (operatorController.getRightBumperPressed())
-            claw.close();
-/*
-        // Pressing Y makes the arm go to the preset of the top position
-        if (operatorController.getYButtonPressed())
-            arm.goTo(ArmState.DROPOFF_HIGH);
+        /*     ___________________________
+         *    |  __0__                    |
+         *    | |  |  |  (1) [3] [4] (5)  |
+         *    | |_/_\_|  (2) [6] [x] (x)  |
+         *    |___________________________|
+         * 
+         *    1 - Pickup human
+         *    2 - Pickup floor
+         * 
+         *    3 - Dropoff low / Intermediate
+         *    4 - Dropoff medium
+         *    5 - Dropoff high
+         *    
+         *    6 - Zero
+         */
 
-        // Pressing B makes the arm go to the preset of the middle position
-        if (operatorController.getBButtonPressed())
-            arm.goTo(ArmState.DROPOFF_MED);
+         
+        // Pressing Right bumper makes the arm go to the preset of the drop of high position
+        if (operatorController.getRawButtonPressed(5))
+            arm.setTarget(ArmState.DROPOFF_HIGH);
 
-        // Pressing A makes the arm go to the preset of the bottom position
-        if (operatorController.getAButtonPressed())
-            arm.goTo(ArmState.DROPOFF_LOW);
+        // Pressing Y makes the arm go to the preset of the drop of medium position
+        if (operatorController.getRawButtonPressed(7))
+            arm.setTarget(ArmState.DROPOFF_MED);
 
-        // Pressing Start makes the arm go to the preset of the zero position
-        if (operatorController.getStartButtonPressed())
-            arm.goTo(ArmState.ZERO);
+        // Pressing Left trigger makes the arm go to the preset of the floor pickup position
+        if (operatorController.getRawButtonPressed(3))
+            arm.setTarget(ArmState.INTERMEDIATE);
 
-        // Pressing X makes the arm go to the preset of the balance position
-        if (operatorController.getXButtonPressed())
-            arm.goTo(ArmState.BALANCE);
+        // Pressing A makes the arm go to the preset of the zero position
+        if (operatorController.getRawButtonPressed(1))
+            arm.setTarget(ArmState.ZERO);
 
-        // Pressing Back makes the arm go to the preset of the delitray position
-        if (operatorController.getBackButtonPressed())
-            arm.goTo(ArmState.PICKUP_HUMAN);
-*/
+        // Pressing Left bumper makes the arm go to the preset of the human pickup position
+        if (operatorController.getRawButtonPressed(4))
+            arm.setTarget(ArmState.PICKUP_HUMAN);
+        
+        // Pressing Left trigger makes the arm go to the preset of the floor pickup position
+        if (operatorController.getRawButtonPressed(2))
+            arm.setTarget(ArmState.PICKUP_FLOOR);
+
+        // Press B to place a cone on a peg
+        if(operatorController.getRawButtonPressed(6))
+            arm.setTarget(ArmState.PLACE_HIGH);
+
+       
+
+        
     }
 
     // This function is called every 20ms while the robot is enabled
     @Override
     public void robotPeriodic() {    
         // Print data to the dashboard
-        dashboard.PIDtoDashboard(arm.getRotationPid(), "rotation");
-        dashboard.PIDtoDashboard(arm.getTelescopePid(), "telescope");
-        dashboard.PIDtoDashboard(arm.getSliderPid(), "slider");
         dashboard.printLimelightData(limelight);
         dashboard.printBasicDrivetrainData(robotContainer.getDrivetrain());
+        dashboard.printIndicatorState(indicator);
 
         // Run any functions that always need to be running
-        CommandScheduler.getInstance().run();
         limelight.updateLimelightTracking();
+        CommandScheduler.getInstance().run();
     }
 
-    //----------- test functionality below -----------
-    // This function is called once at the start of a test
-    @Override
-    public void testInit() {
-        // Init values for arm testing
-        rotationPos = 0;
-        telescopePos = 0;
-        sliderPos = 0;
-        i = 0;
-        prev = -1;
-    }
-
-    // This function is called every 20ms while testing
     @Override
     public void testPeriodic() {
-        // Get the state of the dpad
-        int curr = operatorController.getPOV();
-    
-        // Arm's telescope is controlled by the bumpers
-        if (operatorController.getLeftBumperPressed())
-            arm.telescopeGoTo(--telescopePos);
-        else if (operatorController.getRightBumperPressed())
-            arm.telescopeGoTo(++telescopePos);
 
-        // Arm's slider is controlled by left and right dpad
-        if (curr == 270 && curr != prev) {
-            sliderPos -= .5;
-            arm.sliderGoTo(sliderPos);
-        }
-        else if (curr == 90 && curr != prev){
-            sliderPos += .5;
-            arm.sliderGoTo(sliderPos);
-        }
+        /*     ___________________________
+         *    |  __0__                    |
+         *    | |  |  |  (1) [3] [4] (7)  |
+         *    | |_/_\_|  (2) [5] [6] (8)  |
+         *    |___________________________|
+         * 
+         *    1 and 2 control claw
+         *    3 and 4 control telescope
+         *    5 and 6 control slider
+         *    7 and 8 control rotation
+         */
         
-        // Arm's rotation is controlled by up and down dpad
-        if (curr == 180 && curr != prev)
-            arm.rotationGoTo(--rotationPos);
-        else if (curr == 0 && curr != prev)
-            arm.rotationGoTo(++rotationPos);
-
-        // Pressing B resets the arm to where it was when the robot was powered on
-        if (operatorController.getBButtonPressed())
-            arm.zeroPosition();
-
-        // Testing configuration button
-        if (operatorController.getAButtonPressed()) {
-            //arm.rotationGoTo(80);
-            //rotationPos = 80;
-            arm.pickupFloor();
-        }
-
-        // Control the claw in test mode
-        if (operatorController.getStartButtonPressed())
+        if (operatorController.getLeftTriggerAxis() > .5)
             claw.open();
-        else if (operatorController.getBackButtonPressed())
+        else if (operatorController.getRawButton(1))
             claw.close();
+            
+        if(operatorController.getRawButton(5))
+            arm.getTelescopeMotor().set(.15);
+        else if(operatorController.getRawButton(3))
+            arm.getTelescopeMotor().set(-.3);
+        else
+            arm.getTelescopeMotor().set(0); 
 
-        // Print the arm positions every 2 sec
-        if(i == 100) {
-            System.out.println( "Rotation Position : " + arm.getRotationPid().getRatioPos());
-            System.out.println( "Telescope Position : " + arm.getTelescopePid().getRatioPos());
-            System.out.println( "Slider Position : " + arm.getSliderPid().getRatioPos());
-            i = 0;
-        }
-        i++;
-        
-        // The dpad's previous value is updated for debounce
-        prev = curr; 
+        if(operatorController.getRawButton(2))
+            arm.getSliderMotor().set(.15);
+        else if(operatorController.getRawButton(4))
+            arm.getSliderMotor().set(-.15);
+        else
+            arm.getSliderMotor().set(0); 
+
+        if(operatorController.getRawButton(6))
+            arm.getRotationMotor().set(.1);
+        else if(operatorController.getRightTriggerAxis() > .5)
+            arm.getRotationMotor().set(-.1);
+        else
+            arm.getRotationMotor().set(0); 
+
+        if(operatorController.getRawButtonPressed(7))
+            indicator.indicatorToggle();
     }
 }

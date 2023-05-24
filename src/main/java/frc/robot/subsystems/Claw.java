@@ -33,13 +33,16 @@ public class Claw {
     }
     public void open(){
         dubs.set(Value.kForward);
+        isOpen = true;
     }
     public void close(){
         dubs.set(Value.kReverse);
+        isOpen = false;
     }
 
     public void autoGrab(){
-        if(laserDetector.isBlocked() == true)
+        if(laserDetector.isBlocked() == true){ 
             close();
+        }
     }
 }

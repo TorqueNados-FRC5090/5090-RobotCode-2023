@@ -2,10 +2,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Math Imports
-//import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -20,6 +21,7 @@ import static frc.robot.Constants.SwerveIDs.*;
 import static frc.robot.Constants.SwerveInversions.*;
 import static frc.robot.Constants.SwerveModuleOffsets.*;
 import static frc.robot.Constants.SwerveConstants.*;
+import static frc.robot.Constants.DriveConstants.*;
 
 /** This class represents the drivetrain on the robot */
 public class Drivetrain extends SubsystemBase {
@@ -77,6 +79,12 @@ public class Drivetrain extends SubsystemBase {
                 ModulePosition.REAR_RIGHT,
                 rearRightModule));
 
+
+    // Declare and initialize the limiters used to slew instructions
+    private final SlewRateLimiter slewX = new SlewRateLimiter(TRANSLATION_SLEW);
+    private final SlewRateLimiter slewY = new SlewRateLimiter(TRANSLATION_SLEW);
+    private final SlewRateLimiter slewRot = new SlewRateLimiter(ROTATION_SLEW);
+
     /** The gyro is used to help keep track of where the robot is facing */
     private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
@@ -92,31 +100,56 @@ public class Drivetrain extends SubsystemBase {
             getHeadingRotation2d(),
             getModulePositions(),
             new Pose2d());
-
-    /* These will potentially be used to track robot movement in auton
-    private ProfiledPIDController xController =
-        new ProfiledPIDController(kP_X, 0, kD_X, kThetaControllerConstraints);
-    private ProfiledPIDController yController =
-        new ProfiledPIDController(kP_Y, 0, kD_Y, kThetaControllerConstraints);
-    private ProfiledPIDController turnController =
-        new ProfiledPIDController(kP_Theta, 0, kD_Theta, kThetaControllerConstraints);
-    */
     
     /** Constructs a drivetrain {@link SubsystemBase subsystem} */
     public Drivetrain() {
         gyro.reset();
     }
 
+
     /** 
      * Drives the robot
+     *  
+     * @param inputX The left/right translation instruction
+     * @param inputY The forward/back translation instruction
+     * @param inputRot The rotational instruction
+    */
+    public void drive(double inputX, double inputY, double inputRot) {
+        // If a translation input is between -.05 and .05, set it to 0
+        double deadbandedX = MathUtil.applyDeadband(Math.abs(inputX),
+            TRANSLATION_DEADBAND) * Math.signum(inputX);
+        double deadbandedY = MathUtil.applyDeadband(Math.abs(inputY),
+            TRANSLATION_DEADBAND) * Math.signum(inputY);
+
+        // If the rotation input is between -.1 and .1, set it to 0
+        double deadbandedRot = MathUtil.applyDeadband(Math.abs(inputRot),
+            ROTATION_DEADBAND) * Math.signum(inputRot);
+
+        // Square values after deadband while keeping original sign
+        deadbandedX = -Math.signum(deadbandedX) * Math.pow(deadbandedX, 2);
+        deadbandedY = -Math.signum(deadbandedY) * Math.pow(deadbandedY, 2);
+        deadbandedRot = -Math.signum(deadbandedRot) * Math.pow(deadbandedRot, 2);
+
+        // Apply a slew rate to the inputs, limiting the rate at which the robot changes speed
+        double slewedX = slewX.calculate(deadbandedX);
+        double slewedY = slewY.calculate(deadbandedY);
+        double slewedRot = slewRot.calculate(deadbandedRot);
+
+        // Send the processed output to the drivetrain
+        sendDrive(slewedX, slewedY, slewedRot, true);
+    }
+
+    /** 
+     * Sends instructions to the motors that drive the robot
      *  
      * @param translationX The left/right translation instruction
      * @param translationY The forward/back translation instruction
      * @param rotation The rotational instruction
+     * @param isOpenLoop True to control the driving motor via %power.
+     *                   False to control the driving motor via velocity-based PID.
     */
-    public void drive( double translationX, double translationY, double rotation, boolean isOpenLoop ) {
-
-
+    private void sendDrive( double translationX, double translationY, double rotation, boolean isOpenLoop ) {
+        // Convert inputs from % to m/sec
         translationY *= MAX_TRANSLATION_SPEED;
         translationX *= MAX_TRANSLATION_SPEED;
         rotation *= MAX_ROTATION_SPEED;
@@ -140,7 +173,7 @@ public class Drivetrain extends SubsystemBase {
             module.setDesiredState(moduleStates[module.getModuleNumber()], isOpenLoop);
     }
 
-
+    // Misc getters
     /** @return The current direction the robot is facing in degrees */
     public double getHeadingDegrees() { return -Math.IEEEremainder(gyro.getAngle(), 360); }
     /** @return The current direction the robot is facing as a {@link Rotation2d} object */
@@ -164,19 +197,16 @@ public class Drivetrain extends SubsystemBase {
     /** @param isFieldCentric Whether the robot should be set to field centric or not */
     public void setFieldCentric(boolean isFieldCentric) { this.isFieldCentric = isFieldCentric; }
     /** @param isFieldCentric Whether the robot should be set to robot centric or not */
-    public void setRobotCentric(boolean isRobotCentric) { this.isFieldCentric = !isFieldCentric; }
+    public void setRobotCentric(boolean isRobotCentric) { this.isFieldCentric = !isRobotCentric; }
     /** Sets the robot to field centric if currently robot centric and vice versa */
-    public void toggleFieldCentric() { isFieldCentric = !isFieldCentric; }
+    public void toggleFieldCentric() { this.isFieldCentric = !this.isFieldCentric; }
 
-    /** Sets the wheels of the robot into an X shape for anti-defense */
-    public void lock() {
-        int[] lockPos = {-45,45,-45,45};
-        int i = 0;
-
-        for (SwerveModule module : swerveModules.values()){
-            module.turnTo(lockPos[i]);
-            i++;
-        }
+    /** Resets the wheels of the robot to point forward */
+    public void zeroWheels() { 
+         for (SwerveModule module : swerveModules.values())
+            module.setDesiredState(
+                new SwerveModuleState(0, new Rotation2d(0)),    
+                true);
     }
 
     /** @return An array containing the current {@link SwerveModuleState state} of each module */
@@ -188,6 +218,25 @@ public class Drivetrain extends SubsystemBase {
             swerveModules.get(ModulePosition.REAR_RIGHT).getState()
         };
     }
+
+    /** Set the state of each module at once
+     *  @param states An array containing the desired {@link SwerveModuleState state} of each module */
+    public void setModuleStates(SwerveModuleState[] states) {
+        // Normalize output if any of the modules would be instructed to go faster than possible
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_TRANSLATION_SPEED);
+
+        // Send instructions to each module
+        for (SwerveModule module : swerveModules.values())
+            module.setDesiredState(states[module.getModuleNumber()], true);
+    }
+
+    /** Set the state of each to 0,0 */
+    public void resetModuleStates() {
+        // Send instructions to each module
+        for (SwerveModule module : swerveModules.values())
+            module.setDesiredState(new SwerveModuleState(), true);
+    }
+
     /** @return An array containing the current {@link SwerveModulePosition position} of each module */
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -215,7 +264,23 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
-    
+    /** Sets the odometry of the robot using a given pose
+     *  @param pose The pose of the robot */
+    public void setOdometry( Pose2d pose) {
+        odometry.resetPosition(
+            getHeadingRotation2d(),
+            getModulePositions(),
+            pose);
+    }
+
+    /** Resets the odometry of the robot */
+    public void resetOdometry() {
+        odometry.resetPosition(
+            getHeadingRotation2d(),
+            getModulePositions(),
+            new Pose2d());
+    }
+
     @Override // Called every 20ms
     public void periodic() {
         updateOdometry();
